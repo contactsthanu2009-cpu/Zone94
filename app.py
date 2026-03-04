@@ -176,5 +176,135 @@ def create_global_portal():
                 <a href="https://wa.me/94765738122" target="_blank" class="social-btn" style="background:#25D366;">WHATSAPP</a>
                 <a href="https://www.linkedin.com/in/thanuka-sathsara-freelancer" target="_blank" class="social-btn" style="background:#0077b5;">LINKEDIN</a>
             </div>
-            <button class="main-btn" style="width:auto; padding:10px 40px;" onclick="document.getElementById('about-
+            <button class="main-btn" style="width:auto; padding:10px 40px;" onclick="document.getElementById('about-modal').classList.add('hidden')">CLOSE</button>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {{
+            apiKey: "AIzaSyDsrbp-BPJRqJi8UPRx99KRNIALsQvKpxg",
+            authDomain: "zone94-2553a.firebaseapp.com",
+            databaseURL: "https://zone94-2553a-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "zone94-2553a",
+            storageBucket: "zone94-2553a.firebasestorage.app",
+            appId: "1:722640877424:web:5e145b4c767af86e60c1b5"
+        }};
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let mode = 'login';
+        const allChannels = {{
+            "SRI LANKA": ["Hiru News", "Sirasa TV", "TV Derana", "ITN", "Swarnavahini"],
+            "USA": ["ABC News", "NBC News", "CBS News", "Fox News", "CNN"],
+            "UK": ["BBC News", "Sky News", "GB News", "Channel 4", "Reuters"],
+            "INDIA": ["NDTV", "Aaj Tak", "India Today", "Republic World", "Zee News"]
+        }};
+
+        function toggleAuth(m) {{
+            mode = m; document.getElementById('tab-l').style.color = (m==='login'?'#fff':'#555'); document.getElementById('tab-s').style.color = (m==='signup'?'#fff':'#555');
+            document.getElementById('reg-name').classList.toggle('hidden', m==='login');
+        }}
+
+        function handleAuth() {{
+            const email = document.getElementById('auth-email').value;
+            const pass = document.getElementById('auth-pass').value;
+            if(email === "contact.sthanu2009@gmail.com" && pass === "200928001301") {{ loginSuccess({{name: "Admin", email, isAdmin: true}}); }}
+            else if(mode === 'signup') {{
+                const name = document.getElementById('reg-name').value;
+                db.ref('users/' + btoa(email)).set({{name, email, pass}}, () => {{ alert("Success! Now Login."); toggleAuth('login'); }});
+            }} else {{
+                db.ref('users/' + btoa(email)).once('value', s => {{
+                    const u = s.val(); if(u && u.pass === pass) loginSuccess(u); else alert("Invalid Login!");
+                }});
+            }}
+        }}
+
+        function loginSuccess(user) {{
+            document.getElementById('login-overlay').classList.add('hidden');
+            document.getElementById('main-site').classList.remove('hidden');
+            document.getElementById('user-avatar').innerText = user.name.charAt(0).toUpperCase();
+            document.getElementById('tp-name').innerText = user.name;
+            document.getElementById('tp-email').innerText = user.email;
+            if(user.isAdmin) document.getElementById('nav-admin').classList.remove('hidden');
+            db.ref('logs').push({{email: user.email, time: new Date().toLocaleString()}});
+            loadAllChannels();
+            listenForTicker();
+            listenForManualNews();
+        }}
+
+        function loadAllChannels() {{
+            const container = document.getElementById('all-channels-list');
+            container.innerHTML = "";
+            Object.keys(allChannels).forEach(country => {{
+                let group = `<div class="ch-country-group"><h3 style="color:var(--bbc-red);">${{country}}</h3><div class="ch-grid">`;
+                allChannels[country].forEach(ch => {{
+                    group += `<div class="ch-card" onclick="alert('Connecting to ${{ch}} Live...')">${{ch}} LIVE</div>`;
+                }});
+                group += `</div></div>`;
+                container.innerHTML += group;
+            }});
+        }}
+
+        function switchNav(type, btn, cat) {{
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
+            document.getElementById('news-container').classList.toggle('hidden', type !== 'news');
+            document.getElementById('channels-container').classList.toggle('hidden', type !== 'channels');
+            document.getElementById('admin-container').classList.toggle('hidden', type !== 'admin');
+            if(cat) {{
+                document.querySelectorAll('.category-section').forEach(s => {{
+                    s.classList.toggle('hidden', s.id !== cat + '-grid');
+                }});
+            }}
+            if(type === 'admin') {{
+                db.ref('logs').on('value', s => {{
+                    const tbody = document.getElementById('log-tbody'); tbody.innerHTML = "";
+                    s.forEach(child => {{ const l = child.val(); tbody.innerHTML = `<tr><td style='padding:10px;'>${{l.email}}</td><td>${{l.time}}</td></tr>` + tbody.innerHTML; }});
+                }});
+            }}
+        }}
+
+        function addManualNews() {{
+            const title = document.getElementById('admin-news-title').value;
+            const desc = document.getElementById('admin-news-desc').value;
+            if(!title) return alert("Enter Headline!");
+            db.ref('manual_news').push({{ title, desc, time: new Date().toLocaleString() }});
+            alert("Published!");
+            document.getElementById('admin-news-title').value = "";
+            document.getElementById('admin-news-desc').value = "";
+        }}
+
+        function updateTicker() {{
+            const text = document.getElementById('admin-ticker-input').value;
+            db.ref('settings/ticker').set(text);
+            alert("Updated!");
+        }}
+
+        function listenForTicker() {{
+            db.ref('settings/ticker').on('value', s => {{ if(s.val()) document.getElementById('main-ticker').innerText = "🚀 " + s.val() + " — "; }});
+        }}
+
+        function listenForManualNews() {{
+            db.ref('manual_news').on('value', s => {{
+                const display = document.getElementById('manual-news-display');
+                display.innerHTML = "";
+                s.forEach(child => {{
+                    const n = child.val();
+                    display.innerHTML = `<div class="bbc-card animate-up" style="border-left:5px solid var(--bbc-red); margin-bottom:20px;">
+                        <span class="category-tag">BREAKING</span><h3>${{n.title}}</h3><p>${{n.desc}}</p>
+                    </div>` + display.innerHTML;
+                }});
+            }});
+        }}
+
+        function toggleTooltip() {{ document.getElementById('user-tooltip').classList.toggle('hidden'); }}
+        function showAbout() {{ document.getElementById('about-modal').classList.remove('hidden'); }}
+        setInterval(() => {{ document.getElementById('live-clock').innerText = new Date().toLocaleTimeString(); }}, 1000);
+    </script>
+</body>
+</html>
+    """
+    with open("index.html", "w", encoding="utf-8") as f: f.write(full_html)
+    print("\n✅ ZONE 94 PRO v8.0 is ready with Global Sports & Open Channels.")
+
+if __name__ == "__main__": create_global_portal()
 
