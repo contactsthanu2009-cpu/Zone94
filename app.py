@@ -11,15 +11,17 @@ user_image_base64 = get_image_base64("image_3.png")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=GEMINI_API_KEY)
 
-# CATEGORIES: WORLD, SPORTS, TECH (AS REQUESTED)
+# Categories: WORLD, SPORTS, TECH
 feeds = {
     "WORLD NEWS": "https://news.google.com/rss/search?q=world+news&hl=en-US&gl=US&ceid=US:en",
     "SPORTS NEWS": "https://news.google.com/rss/search?q=sports+news&hl=en-US&gl=US&ceid=US:en",
     "TECH NEWS": "https://news.google.com/rss/search?q=technology+news&hl=en-US&gl=US&ceid=US:en"
 }
 
-def create_global_portal():
-    print("🚀 ZONE 94: Building Global Sports & All-Access Portal...")
+def create_files():
+    print("🚀 ZONE 94: Generating index.html & auth.js...")
+    
+    # 1. GENERATE NEWS CONTENT
     sections_html = ""
     for cat_name, url in feeds.items():
         feed = feedparser.parse(url)
@@ -37,134 +39,102 @@ def create_global_portal():
             </div>"""
         sections_html += '</div></div>'
 
-    full_html = f"""
+    # 2. CREATE index.html (UI ONLY)
+    index_html = f"""
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZONE 94 | Global Intelligence Portal</title>
+    <title>ZONE 94 | World's #1 AI Portal</title>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@300;400;700;900&display=swap');
-        :root {{ --bbc-red: #bb1919; --bg: #000; --card: #111; --text: #fff; }}
+        :root {{ --bbc-red: #bb1919; --bg: #000; --text: #fff; }}
         body {{ background: var(--bg); color: var(--text); font-family: 'Poppins', sans-serif; margin: 0; overflow-x: hidden; }}
         .hidden {{ display: none !important; }}
-        
-        @keyframes fadeInUp {{ from {{ opacity: 0; transform: translateY(30px); }} to {{ opacity: 1; transform: translateY(0); }} }}
         .animate-up {{ animation: fadeInUp 0.5s ease forwards; }}
+        @keyframes fadeInUp {{ from {{ opacity: 0; transform: translateY(30px); }} to {{ opacity: 1; transform: translateY(0); }} }}
         
+        /* AUTH UI */
+        .login-overlay {{ position: fixed; inset: 0; background: #000; display: flex; justify-content: center; align-items: center; z-index: 3000; }}
+        .login-card {{ background: #0a0a0a; padding: 40px; border: 1px solid #222; border-radius: 20px; text-align: center; width: 380px; }}
+        input {{ width: 100%; padding: 14px; margin: 10px 0; background: #151515; border: 1px solid #333; color: #fff; border-radius: 8px; box-sizing: border-box; }}
+        .main-btn {{ width: 100%; background: var(--bbc-red); color: #fff; border: none; padding: 16px; cursor: pointer; font-weight: 900; font-family: 'Bebas Neue'; font-size: 1.5rem; border-radius: 8px; }}
+
+        /* MAIN UI */
         .ticker-wrap {{ background: #111; display: flex; justify-content: space-between; padding: 12px 20px; border-bottom: 1px solid #222; }}
         .main-logo-bbc span {{ background: white; color: black; padding: 5px 15px; font-size: 2.2rem; font-family: 'Bebas Neue'; }}
         .main-logo-bbc .num {{ background: var(--bbc-red); color: white; }}
         .avatar-circle {{ width: 50px; height: 50px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; border: 4px solid var(--bbc-red); cursor: pointer; color: #000; }}
-        
         .main-nav {{ background: #0a0a0a; display: flex; justify-content: center; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 1000; }}
         .nav-btn {{ background: none; border: none; color: #888; padding: 18px 25px; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: 0.3s; }}
         .nav-btn:hover, .nav-btn.active {{ color: #fff; border-bottom: 4px solid var(--bbc-red); background: #111; }}
+        .news-grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; padding: 30px; }}
+        .bbc-card {{ background: #111; padding: 25px; border-radius: 12px; border: 1px solid #222; cursor: pointer; }}
+        .section-header {{ font-family: 'Bebas Neue'; font-size: 2.5rem; border-left: 8px solid var(--bbc-red); padding-left: 20px; margin-bottom: 35px; text-transform: uppercase; margin-left: 30px; }}
         
-        .content {{ padding: 30px; max-width: 1400px; margin: auto; min-height: 80vh; }}
-        .section-header {{ font-family: 'Bebas Neue'; font-size: 2.5rem; border-left: 8px solid var(--bbc-red); padding-left: 20px; margin-bottom: 35px; text-transform: uppercase; }}
-        .news-grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 30px; }}
-        .bbc-card {{ background: var(--card); padding: 30px; border-radius: 15px; border: 1px solid #222; cursor: pointer; transition: 0.4s; }}
-        .bbc-card:hover {{ border-color: var(--bbc-red); transform: translateY(-5px); }}
-
-        .login-overlay {{ position: fixed; inset: 0; background: #000; display: flex; justify-content: center; align-items: center; z-index: 3000; }}
-        .login-card {{ background: #0a0a0a; padding: 40px; border: 1px solid #222; border-radius: 20px; text-align: center; width: 380px; }}
-        input, select, textarea {{ width: 100%; padding: 14px; margin: 10px 0; background: #151515; border: 1px solid #333; color: #fff; border-radius: 8px; box-sizing: border-box; }}
-        .main-btn {{ width: 100%; background: var(--bbc-red); color: #fff; border: none; padding: 16px; cursor: pointer; font-weight: 900; font-family: 'Bebas Neue'; font-size: 1.5rem; border-radius: 8px; }}
-
-        .ch-country-group {{ margin-bottom: 40px; }}
-        .ch-grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }}
-        .ch-card {{ background: #111; border: 1px solid #333; color: #fff; padding: 25px; border-radius: 12px; cursor: pointer; text-align: center; font-weight: 900; font-family: 'Bebas Neue'; font-size: 1.2rem; transition: 0.3s; }}
-        .ch-card:hover {{ background: var(--bbc-red); transform: translateY(-5px); }}
-
+        /* MODALS */
         .modal-bg {{ position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: flex; justify-content: center; align-items: center; z-index: 4000; }}
-        .modal-photo {{ width: 150px; height: 150px; border-radius: 50%; border: 4px solid var(--bbc-red); margin-bottom: 20px; object-fit: cover; box-shadow: 0 0 20px var(--bbc-red); }}
+        .modal-photo {{ width: 150px; height: 150px; border-radius: 50%; border: 4px solid var(--bbc-red); margin-bottom: 20px; box-shadow: 0 0 20px var(--bbc-red); }}
         .social-btn {{ padding: 10px 20px; border-radius: 5px; text-decoration: none; color: #fff; font-weight: bold; margin: 5px; display: inline-block; }}
-        
-        #user-tooltip {{ position: absolute; top: 90px; right: 50px; background: #0a0a0a; border: 1px solid #333; border-radius: 15px; padding: 25px; width: 280px; z-index: 2000; }}
     </style>
 </head>
-<body>
+<body onload="checkSavedLogin()">
 
     <div id="login-overlay" class="login-overlay">
         <div class="login-card">
-            <div class="main-logo-bbc" style="margin-bottom:20px;"><span>Z</span><span>O</span><span>N</span><span>E</span><span class="num">94</span></div>
-            <div style="display:flex; margin-bottom:15px; border-bottom: 1px solid #222;">
-                <button onclick="toggleAuth('login')" id="tab-l" style="flex:1; background:none; color:#fff; border:none; padding:10px; cursor:pointer; font-weight:bold;">LOGIN</button>
-                <button onclick="toggleAuth('signup')" id="tab-s" style="flex:1; background:none; color:#555; border:none; padding:10px; cursor:pointer; font-weight:bold;">SIGNUP</button>
+            <div id="auth-form">
+                <div class="main-logo-bbc"><span>Z</span><span>O</span><span>N</span><span>E</span><span class="num">94</span></div>
+                <div style="display:flex; margin:20px 0; border-bottom:1px solid #222;">
+                    <button onclick="toggleMode('login')" id="btn-l" style="flex:1; background:none; color:#fff; border:none; padding:10px; cursor:pointer;">LOGIN</button>
+                    <button onclick="toggleMode('signup')" id="btn-s" style="flex:1; background:none; color:#555; border:none; padding:10px; cursor:pointer;">SIGNUP</button>
+                </div>
+                <input type="text" id="u-name" placeholder="Full Name" class="hidden">
+                <input type="email" id="u-email" placeholder="Email Address">
+                <input type="password" id="u-pass" placeholder="Password">
+                <button class="main-btn" onclick="handleAuth()">PROCEED</button>
             </div>
-            <input type="text" id="reg-name" placeholder="Full Name" class="hidden">
-            <input type="email" id="auth-email" placeholder="Email Address">
-            <input type="password" id="auth-pass" placeholder="Password">
-            <button class="main-btn" onclick="handleAuth()">ENTER THE ZONE</button>
+            <div id="verify-form" class="hidden">
+                <h3 style="color:var(--bbc-red); font-family:'Bebas Neue';">VERIFY YOUR EMAIL</h3>
+                <p style="font-size:12px; color:#666;">Enter the code sent to your email.</p>
+                <input type="text" id="v-code" placeholder="6-Digit Code">
+                <button class="main-btn" onclick="confirmVerify()">VERIFY ACCOUNT</button>
+            </div>
         </div>
     </div>
 
     <div id="main-site" class="hidden">
-        <div class="ticker-wrap">
-            <div class="ticker" id="main-ticker">🚀 ZONE 94 — WORLD'S NUMBER 1 AI PORTAL — ALL SYSTEMS ACTIVE — </div>
-            <div id="live-clock" style="color:#666; font-weight:bold">00:00:00</div>
-        </div>
-
-        <header class="site-header" style="display:flex; justify-content:space-between; align-items:center; padding:20px 40px;">
+        <div class="ticker-wrap"><div class="ticker" id="main-ticker">🚀 ZONE 94 — WORLD'S NUMBER 1 AI PORTAL — </div><div id="live-clock" style="color:#666; font-weight:bold">00:00:00</div></div>
+        <header style="display:flex; justify-content:space-between; padding:20px 40px; align-items:center;">
             <div style="width:100px"></div>
             <div class="main-logo-bbc" onclick="window.location.reload()"><span>Z</span><span>O</span><span>N</span><span>E</span><span class="num">94</span></div>
-            <div id="user-avatar" class="avatar-circle" onclick="toggleTooltip()">U</div>
+            <div id="user-avatar" class="avatar-circle" onclick="logout()">U</div>
         </header>
-
         <nav class="main-nav">
-            <button class="nav-btn active" onclick="switchNav('news', this, 'world')">World News</button>
-            <button class="nav-btn" onclick="switchNav('news', this, 'sports')">Sports News</button>
-            <button class="nav-btn" onclick="switchNav('news', this, 'tech')">Tech News</button>
-            <button class="nav-btn" onclick="switchNav('channels', this)">Live Channels</button>
-            <button class="nav-btn hidden" id="nav-admin" onclick="switchNav('admin', this)" style="color:var(--bbc-red)">ADMIN PANEL</button>
+            <button class="nav-btn active" onclick="switchNav('news', this, 'world')">World</button>
+            <button class="nav-btn" onclick="switchNav('news', this, 'sports')">Sports</button>
+            <button class="nav-btn" onclick="switchNav('news', this, 'tech')">Tech</button>
+            <button class="nav-btn" onclick="switchNav('channels', this)">Channels</button>
+            <button class="nav-btn hidden" id="nav-admin" onclick="switchNav('admin', this)" style="color:var(--bbc-red)">ADMIN</button>
             <button class="nav-btn" onclick="showAbout()">About Us</button>
         </nav>
-
         <main class="content">
-            <div id="news-container" class="animate-up">
-                <div id="manual-news-display"></div>
-                {sections_html}
-            </div>
-
+            <div id="news-container">{sections_html}</div>
             <div id="channels-container" class="hidden animate-up">
-                <h2 class="section-header">Global Live Broadcasts</h2>
-                <div id="all-channels-list"></div>
+                <h2 class="section-header">Live Global Broadcasts</h2>
+                <div id="all-channels-list" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:15px; padding:30px;"></div>
             </div>
-
             <div id="admin-container" class="hidden animate-up">
                 <div style="background:#111; padding:30px; border-radius:15px; border:1px solid var(--bbc-red);">
-                    <h2 class="section-header">Admin Control</h2>
-                    <h3>Post Custom News</h3>
-                    <input type="text" id="admin-news-title" placeholder="Headline">
-                    <textarea id="admin-news-desc" placeholder="News Summary..."></textarea>
-                    <button class="main-btn" style="width:auto; padding:10px 40px;" onclick="addManualNews()">Post Now</button>
-                    <h3 style="margin-top:40px;">Update Site Ticker</h3>
-                    <input type="text" id="admin-ticker-input" placeholder="New Scrolling Text">
-                    <button class="main-btn" style="width:auto; padding:10px 40px;" onclick="updateTicker()">Update Ticker</button>
-                    <h3 style="margin-top:40px;">User Login Logs</h3>
-                    <table style="width:100%; color:#aaa; font-size:13px; text-align:left;">
-                        <thead><tr style="color:var(--bbc-red);"><th>Email</th><th>Time</th></tr></thead>
-                        <tbody id="log-tbody"></tbody>
-                    </table>
+                    <h2 class="section-header">Admin Control Panel</h2>
+                    <input type="text" id="admin-ticker-input" placeholder="Update Ticker Text">
+                    <button class="main-btn" style="width:auto; padding:10px 40px; margin-top:10px;" onclick="updateTicker()">Update</button>
                 </div>
             </div>
         </main>
-        
-        <footer style="text-align:center; padding:40px; border-top:1px solid #222; font-size:11px; color:#444;">
-            ZONE 94 | ALL RIGHTS RESERVED © 2026 | GLOBAL INTELLIGENCE ENGINE
-        </footer>
-    </div>
-
-    <div id="user-tooltip" class="hidden">
-        <h4 style="margin:0; color:var(--bbc-red); font-family:'Bebas Neue';">USER ACCOUNT</h4>
-        <p id="tp-name" style="margin:10px 0; font-size:13px;">Name</p>
-        <p id="tp-email" style="margin:5px 0; font-size:12px; color:#555;">Email</p>
-        <button class="main-btn" style="font-size:12px; padding:8px; margin-top:10px;" onclick="toggleTooltip()">OK</button>
-        <button class="main-btn" style="font-size:12px; padding:8px; margin-top:5px; background:#333;" onclick="window.location.reload()">LOGOUT</button>
     </div>
 
     <div id="about-modal" class="modal-bg hidden" onclick="this.classList.add('hidden')">
@@ -180,131 +150,111 @@ def create_global_portal():
         </div>
     </div>
 
-    <script>
-        const firebaseConfig = {{
-            apiKey: "AIzaSyDsrbp-BPJRqJi8UPRx99KRNIALsQvKpxg",
-            authDomain: "zone94-2553a.firebaseapp.com",
-            databaseURL: "https://zone94-2553a-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "zone94-2553a",
-            storageBucket: "zone94-2553a.firebasestorage.app",
-            appId: "1:722640877424:web:5e145b4c767af86e60c1b5"
-        }};
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-
-        let mode = 'login';
-        const allChannels = {{
-            "SRI LANKA": ["Hiru News", "Sirasa TV", "TV Derana", "ITN", "Swarnavahini"],
-            "USA": ["ABC News", "NBC News", "CBS News", "Fox News", "CNN"],
-            "UK": ["BBC News", "Sky News", "GB News", "Channel 4", "Reuters"],
-            "INDIA": ["NDTV", "Aaj Tak", "India Today", "Republic World", "Zee News"]
-        }};
-
-        function toggleAuth(m) {{
-            mode = m; document.getElementById('tab-l').style.color = (m==='login'?'#fff':'#555'); document.getElementById('tab-s').style.color = (m==='signup'?'#fff':'#555');
-            document.getElementById('reg-name').classList.toggle('hidden', m==='login');
-        }}
-
-        function handleAuth() {{
-            const email = document.getElementById('auth-email').value;
-            const pass = document.getElementById('auth-pass').value;
-            if(email === "contact.sthanu2009@gmail.com" && pass === "200928001301") {{ loginSuccess({{name: "Admin", email, isAdmin: true}}); }}
-            else if(mode === 'signup') {{
-                const name = document.getElementById('reg-name').value;
-                db.ref('users/' + btoa(email)).set({{name, email, pass}}, () => {{ alert("Success! Now Login."); toggleAuth('login'); }});
-            }} else {{
-                db.ref('users/' + btoa(email)).once('value', s => {{
-                    const u = s.val(); if(u && u.pass === pass) loginSuccess(u); else alert("Invalid Login!");
-                }});
-            }}
-        }}
-
-        function loginSuccess(user) {{
-            document.getElementById('login-overlay').classList.add('hidden');
-            document.getElementById('main-site').classList.remove('hidden');
-            document.getElementById('user-avatar').innerText = user.name.charAt(0).toUpperCase();
-            document.getElementById('tp-name').innerText = user.name;
-            document.getElementById('tp-email').innerText = user.email;
-            if(user.isAdmin) document.getElementById('nav-admin').classList.remove('hidden');
-            db.ref('logs').push({{email: user.email, time: new Date().toLocaleString()}});
-            loadAllChannels();
-            listenForTicker();
-            listenForManualNews();
-        }}
-
-        function loadAllChannels() {{
-            const container = document.getElementById('all-channels-list');
-            container.innerHTML = "";
-            Object.keys(allChannels).forEach(country => {{
-                let group = `<div class="ch-country-group"><h3 style="color:var(--bbc-red);">${{country}}</h3><div class="ch-grid">`;
-                allChannels[country].forEach(ch => {{
-                    group += `<div class="ch-card" onclick="alert('Connecting to ${{ch}} Live...')">${{ch}} LIVE</div>`;
-                }});
-                group += `</div></div>`;
-                container.innerHTML += group;
-            }});
-        }}
-
-        function switchNav(type, btn, cat) {{
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
-            document.getElementById('news-container').classList.toggle('hidden', type !== 'news');
-            document.getElementById('channels-container').classList.toggle('hidden', type !== 'channels');
-            document.getElementById('admin-container').classList.toggle('hidden', type !== 'admin');
-            if(cat) {{
-                document.querySelectorAll('.category-section').forEach(s => {{
-                    s.classList.toggle('hidden', s.id !== cat + '-grid');
-                }});
-            }}
-            if(type === 'admin') {{
-                db.ref('logs').on('value', s => {{
-                    const tbody = document.getElementById('log-tbody'); tbody.innerHTML = "";
-                    s.forEach(child => {{ const l = child.val(); tbody.innerHTML = `<tr><td style='padding:10px;'>${{l.email}}</td><td>${{l.time}}</td></tr>` + tbody.innerHTML; }});
-                }});
-            }}
-        }}
-
-        function addManualNews() {{
-            const title = document.getElementById('admin-news-title').value;
-            const desc = document.getElementById('admin-news-desc').value;
-            if(!title) return alert("Enter Headline!");
-            db.ref('manual_news').push({{ title, desc, time: new Date().toLocaleString() }});
-            alert("Published!");
-            document.getElementById('admin-news-title').value = "";
-            document.getElementById('admin-news-desc').value = "";
-        }}
-
-        function updateTicker() {{
-            const text = document.getElementById('admin-ticker-input').value;
-            db.ref('settings/ticker').set(text);
-            alert("Updated!");
-        }}
-
-        function listenForTicker() {{
-            db.ref('settings/ticker').on('value', s => {{ if(s.val()) document.getElementById('main-ticker').innerText = "🚀 " + s.val() + " — "; }});
-        }}
-
-        function listenForManualNews() {{
-            db.ref('manual_news').on('value', s => {{
-                const display = document.getElementById('manual-news-display');
-                display.innerHTML = "";
-                s.forEach(child => {{
-                    const n = child.val();
-                    display.innerHTML = `<div class="bbc-card animate-up" style="border-left:5px solid var(--bbc-red); margin-bottom:20px;">
-                        <span class="category-tag">BREAKING</span><h3>${{n.title}}</h3><p>${{n.desc}}</p>
-                    </div>` + display.innerHTML;
-                }});
-            }});
-        }}
-
-        function toggleTooltip() {{ document.getElementById('user-tooltip').classList.toggle('hidden'); }}
-        function showAbout() {{ document.getElementById('about-modal').classList.remove('hidden'); }}
-        setInterval(() => {{ document.getElementById('live-clock').innerText = new Date().toLocaleTimeString(); }}, 1000);
-    </script>
+    <script src="auth.js"></script>
 </body>
 </html>
     """
-    with open("index.html", "w", encoding="utf-8") as f: f.write(full_html)
-    print("\n✅ ZONE 94 PRO v8.0 is ready with Global Sports & Open Channels.")
 
-if __name__ == "__main__": create_global_portal()
+    # 3. CREATE auth.js (LOGIC ONLY)
+    auth_js = f"""
+    const firebaseConfig = {{
+        apiKey: "AIzaSyDsrbp-BPJRqJi8UPRx99KRNIALsQvKpxg",
+        authDomain: "zone94-2553a.firebaseapp.com",
+        databaseURL: "https://zone94-2553a-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "zone94-2553a",
+        storageBucket: "zone94-2553a.firebasestorage.app",
+        appId: "1:722640877424:web:5e145b4c767af86e60c1b5"
+    }};
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    emailjs.init("ZgGkvBZgIOPcydTiO");
+
+    let authMode = 'login'; let generatedCode = ""; let tempUser = {{}};
+    const allChannels = {{
+        "SRI LANKA": ["Hiru News", "Sirasa TV", "TV Derana", "ITN", "Swarnavahini"],
+        "USA": ["ABC News", "NBC News", "CBS News", "Fox News", "CNN"],
+        "UK": ["BBC News", "Sky News", "GB News", "Channel 4", "Reuters"]
+    }};
+
+    function toggleMode(m) {{
+        authMode = m; document.getElementById('u-name').classList.toggle('hidden', m==='login');
+        document.getElementById('btn-l').style.color = (m==='login'?'#fff':'#555');
+        document.getElementById('btn-s').style.color = (m==='signup'?'#fff':'#555');
+    }}
+
+    function checkSavedLogin() {{
+        const saved = localStorage.getItem('zone94_session');
+        if(saved) loginSuccess(JSON.parse(saved));
+    }}
+
+    function handleAuth() {{
+        const email = document.getElementById('u-email').value;
+        const pass = document.getElementById('u-pass').value;
+        if(authMode === 'signup') {{
+            const name = document.getElementById('u-name').value;
+            generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
+            tempUser = {{name, email, pass}};
+            emailjs.send("service_6j9200q", "template_352c0rr", {{ to_email: email, code: generatedCode }}).then(() => {{
+                document.getElementById('auth-form').classList.add('hidden');
+                document.getElementById('verify-form').classList.remove('hidden');
+            }}, () => alert("Email Error!"));
+        }} else {{
+            if(email === "contact.sthanu2009@gmail.com" && pass === "200928001301") loginSuccess({{name: "Admin", email, isAdmin: true}});
+            else {{
+                db.ref('users/' + btoa(email)).once('value', s => {{
+                    const u = s.val(); if(u && u.pass === pass) {{
+                        localStorage.setItem('zone94_session', JSON.stringify(u));
+                        loginSuccess(u);
+                    }} else alert("Invalid Login!");
+                }});
+            }}
+        }}
+    }}
+
+    function confirmVerify() {{
+        if(document.getElementById('v-code').value === generatedCode) {{
+            db.ref('users/' + btoa(tempUser.email)).set(tempUser, () => {{
+                localStorage.setItem('zone94_session', JSON.stringify(tempUser));
+                loginSuccess(tempUser);
+            }});
+        }} else alert("Wrong Code!");
+    }}
+
+    function loginSuccess(user) {{
+        document.getElementById('login-overlay').classList.add('hidden');
+        document.getElementById('main-site').classList.remove('hidden');
+        document.getElementById('user-avatar').innerText = user.name.charAt(0).toUpperCase();
+        if(user.isAdmin) document.getElementById('nav-admin').classList.remove('hidden');
+        loadAllChannels(); listenForTicker();
+    }}
+
+    function loadAllChannels() {{
+        const container = document.getElementById('all-channels-list'); container.innerHTML = "";
+        Object.keys(allChannels).forEach(country => {{
+            let group = `<div><h3 style="color:var(--bbc-red);">${{country}}</h3><div style="display:flex; flex-wrap:wrap; gap:10px;">`;
+            allChannels[country].forEach(ch => group += `<div style="background:#222; padding:15px; border-radius:10px; cursor:pointer;" onclick="alert('Live...')">${{ch}}</div>`);
+            container.innerHTML += group + "</div></div>";
+        }});
+    }}
+
+    function switchNav(type, btn, cat) {{
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
+        document.getElementById('news-container').classList.toggle('hidden', type !== 'news');
+        document.getElementById('channels-container').classList.toggle('hidden', type !== 'channels');
+        document.getElementById('admin-container').classList.toggle('hidden', type !== 'admin');
+        if(cat) {{ document.querySelectorAll('.category-section').forEach(s => s.classList.toggle('hidden', s.id !== cat + '-grid')); }}
+    }}
+
+    function logout() {{ localStorage.removeItem('zone94_session'); window.location.reload(); }}
+    function showAbout() {{ document.getElementById('about-modal').classList.remove('hidden'); }}
+    function updateTicker() {{ db.ref('settings/ticker').set(document.getElementById('admin-ticker-input').value); alert("Updated!"); }}
+    function listenForTicker() {{ db.ref('settings/ticker').on('value', s => {{ if(s.val()) document.getElementById('main-ticker').innerText = "🚀 " + s.val() + " — "; }}); }}
+    setInterval(() => {{ document.getElementById('live-clock').innerText = new Date().toLocaleTimeString(); }}, 1000);
+    """
+
+    with open("index.html", "w", encoding="utf-8") as f: f.write(index_html)
+    with open("auth.js", "w", encoding="utf-8") as f: f.write(auth_js)
+    print("✅ Files Created!")
+
+if __name__ == "__main__": create_files()
 
