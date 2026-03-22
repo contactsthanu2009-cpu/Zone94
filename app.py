@@ -1,5 +1,6 @@
-import feedparser, google.generativeai as genai, os, base64
+import feedparser, os, base64
 
+# --- IMAGE HANDLER ---
 def get_image_base64(image_path):
     try:
         with open(image_path, "rb") as img:
@@ -8,35 +9,34 @@ def get_image_base64(image_path):
 
 user_image_base64 = get_image_base64("image_3.png")
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-genai.configure(api_key=GEMINI_API_KEY)
-
+# --- NEWS FEEDS ---
 feeds = {
     "WORLD NEWS": "https://news.google.com/rss/search?q=world+news&hl=en-US&gl=US&ceid=US:en",
     "SPORTS NEWS": "https://news.google.com/rss/search?q=sports+news&hl=en-US&gl=US&ceid=US:en",
     "TECH NEWS": "https://news.google.com/rss/search?q=technology+news&hl=en-US&gl=US&ceid=US:en"
 }
 
-def create_unified_portal():
-    print("🚀 ZONE 94: Generating v15.0 - The Final Fix...")
+def build_portal():
+    print("🚀 ZONE 94: Building v17.0 - Zero Error Edition...")
     
     sections_html = ""
     for cat_name, url in feeds.items():
         feed = feedparser.parse(url)
         grid_id = cat_name.split(' ')[0].lower() + "-grid"
         sections_html += f'''
-        <div id="{grid_id}" class="category-section animate-up">
+        <div id="{grid_id}" class="category-section">
             <h2 class="section-header">{cat_name}</h2>
             <div class="news-grid">'''
         for entry in feed.entries[:8]:
             sections_html += f"""
             <div class="bbc-card" onclick="window.open('{entry.link}', '_blank')">
                 <span class="category-tag">{cat_name.split(' ')[0]}</span>
-                <h3 class="news-title">{entry.title}</h3>
+                <h3>{entry.title}</h3>
                 <p>Global Intelligence Report.</p>
             </div>"""
         sections_html += '</div></div>'
 
+    # --- THE ENTIRE WEBSITE IN ONE STRING ---
     final_html = f"""
 <!DOCTYPE html>
 <html lang="en">
@@ -49,82 +49,61 @@ def create_unified_portal():
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@300;400;700;900&display=swap');
         :root {{ --bbc-red: #bb1919; --bg: #000; --text: #fff; }}
-        body {{ background: var(--bg); color: var(--text); font-family: 'Poppins', sans-serif; margin: 0; overflow-x: hidden; }}
+        body {{ background: var(--bg); color: var(--text); font-family: 'Poppins', sans-serif; margin: 0; }}
         .hidden {{ display: none !important; }}
-        .animate-up {{ animation: fadeInUp 0.5s ease forwards; }}
-        @keyframes fadeInUp {{ from {{ opacity: 0; transform: translateY(30px); }} to {{ opacity: 1; transform: translateY(0); }} }}
         .login-overlay {{ position: fixed; inset: 0; background: #000; display: flex; justify-content: center; align-items: center; z-index: 3000; }}
-        .login-card {{ background: #0a0a0a; padding: 40px; border: 1px solid #222; border-radius: 20px; text-align: center; width: 380px; box-shadow: 0 0 30px rgba(187,25,25,0.2); }}
-        input {{ width: 100%; padding: 14px; margin: 10px 0; background: #151515; border: 1px solid #333; color: #fff; border-radius: 8px; box-sizing: border-box; }}
-        .main-btn {{ width: 100%; background: var(--bbc-red); color: #fff; border: none; padding: 16px; cursor: pointer; font-weight: 900; font-family: 'Bebas Neue'; font-size: 1.5rem; border-radius: 8px; margin-top: 10px; }}
-        .main-logo-bbc span {{ background: white; color: black; padding: 5px 15px; font-size: 2.2rem; font-family: 'Bebas Neue'; }}
+        .login-card {{ background: #0a0a0a; padding: 40px; border: 1px solid #222; border-radius: 20px; text-align: center; width: 350px; }}
+        input {{ width: 100%; padding: 12px; margin: 10px 0; background: #151515; border: 1px solid #333; color: #fff; border-radius: 8px; }}
+        .main-btn {{ width: 100%; background: var(--bbc-red); color: #fff; border: none; padding: 15px; cursor: pointer; font-weight: 900; font-family: 'Bebas Neue'; font-size: 1.5rem; border-radius: 8px; }}
+        .main-logo-bbc span {{ background: white; color: black; padding: 5px 10px; font-size: 2rem; font-family: 'Bebas Neue'; }}
         .main-logo-bbc .num {{ background: var(--bbc-red); color: white; }}
-        .avatar-circle {{ width: 50px; height: 50px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; border: 4px solid var(--bbc-red); cursor: pointer; color: #000; }}
         .main-nav {{ background: #0a0a0a; display: flex; justify-content: center; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 1000; }}
-        .nav-btn {{ background: none; border: none; color: #888; padding: 18px 25px; cursor: pointer; font-weight: bold; text-transform: uppercase; }}
-        .nav-btn.active {{ color: #fff; border-bottom: 4px solid var(--bbc-red); }}
-        .news-grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; padding: 30px; }}
-        .bbc-card {{ background: #111; padding: 25px; border-radius: 12px; border: 1px solid #222; cursor: pointer; }}
-        .section-header {{ font-family: 'Bebas Neue'; font-size: 2.5rem; border-left: 8px solid var(--bbc-red); padding-left: 20px; margin-bottom: 35px; text-transform: uppercase; margin-left: 30px; }}
+        .nav-btn {{ background: none; border: none; color: #888; padding: 15px 20px; cursor: pointer; font-weight: bold; text-transform: uppercase; }}
+        .nav-btn.active {{ color: #fff; border-bottom: 3px solid var(--bbc-red); }}
+        .news-grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; padding: 20px; }}
+        .bbc-card {{ background: #111; padding: 20px; border-radius: 10px; border: 1px solid #222; cursor: pointer; }}
+        .section-header {{ font-family: 'Bebas Neue'; font-size: 2rem; border-left: 5px solid var(--bbc-red); padding-left: 15px; margin: 20px; }}
     </style>
 </head>
 <body onload="checkSavedLogin()">
 
     <div id="login-overlay" class="login-overlay">
         <div class="login-card">
-            <div id="auth-form">
+            <div id="auth-box">
                 <div class="main-logo-bbc"><span>Z</span><span>O</span><span>N</span><span>E</span><span class="num">94</span></div>
                 <div style="display:flex; margin:20px 0;">
-                    <button onclick="toggleMode('login')" id="btn-l" style="flex:1; background:none; color:#fff; border:none; cursor:pointer;">LOGIN</button>
-                    <button onclick="toggleMode('signup')" id="btn-s" style="flex:1; background:none; color:#555; border:none; cursor:pointer;">SIGNUP</button>
+                    <button onclick="setAuthMode('login')" id="l-btn" style="flex:1; background:none; color:#fff; border:none; cursor:pointer; font-weight:bold;">LOGIN</button>
+                    <button onclick="setAuthMode('signup')" id="s-btn" style="flex:1; background:none; color:#555; border:none; cursor:pointer; font-weight:bold;">SIGNUP</button>
                 </div>
-                <input type="text" id="u-name" placeholder="Full Name" class="hidden">
-                <input type="email" id="u-email" placeholder="Email Address">
-                <input type="password" id="u-pass" placeholder="Password">
-                <button class="main-btn" onclick="handleAuth()">PROCEED</button>
+                <input type="text" id="name-in" placeholder="Full Name" class="hidden">
+                <input type="email" id="email-in" placeholder="Email Address">
+                <input type="password" id="pass-in" placeholder="Password">
+                <button class="main-btn" onclick="runAuth()">PROCEED</button>
             </div>
             
-            <div id="verify-form" class="hidden">
-                <h3 style="color:var(--bbc-red); font-family:'Bebas Neue';">VERIFY EMAIL</h3>
-                <p style="font-size:12px; color:#666;">Enter the code sent to your email.</p>
-                <input type="text" id="v-code" placeholder="Enter Code">
-                <button class="main-btn" onclick="confirmVerify()">VERIFY</button>
+            <div id="verify-box" class="hidden">
+                <h2 style="font-family:'Bebas Neue';">VERIFY EMAIL</h2>
+                <input type="text" id="code-in" placeholder="6-Digit Code">
+                <button class="main-btn" onclick="verifyNow()">VERIFY</button>
             </div>
         </div>
     </div>
 
     <div id="main-site" class="hidden">
-        <header style="display:flex; justify-content:space-between; padding:20px 40px; align-items:center;">
-            <div style="width:100px"></div>
+        <header style="display:flex; justify-content:center; padding:20px;">
             <div class="main-logo-bbc"><span>Z</span><span>O</span><span>N</span><span>E</span><span class="num">94</span></div>
-            <div id="user-avatar" class="avatar-circle" onclick="logout()">U</div>
         </header>
         <nav class="main-nav">
-            <button class="nav-btn active" onclick="switchNav('news', this, 'world')">World</button>
-            <button class="nav-btn" onclick="switchNav('news', this, 'sports')">Sports</button>
-            <button class="nav-btn" onclick="switchNav('news', this, 'tech')">Tech</button>
-            <button class="nav-btn" onclick="switchNav('channels', this)">Channels</button>
-            <button class="nav-btn hidden" id="nav-admin" onclick="switchNav('admin', this)" style="color:var(--bbc-red)">ADMIN</button>
+            <button class="nav-btn active" onclick="showCat('world', this)">World</button>
+            <button class="nav-btn" onclick="showCat('sports', this)">Sports</button>
+            <button class="nav-btn" onclick="showCat('tech', this)">Tech</button>
+            <button class="nav-btn" onclick="logout()" style="color:red">Logout</button>
         </nav>
-        <main class="content">
-            <div id="news-container">{sections_html}</div>
-            <div id="channels-container" class="hidden animate-up">
-                <h2 class="section-header">Live Broadcasts</h2>
-                <div id="all-channels-list" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:15px; padding:30px;"></div>
-            </div>
-            <div id="admin-container" class="hidden animate-up">
-                <div style="background:#111; padding:30px; border-radius:15px; border:1px solid var(--bbc-red);">
-                    <h2>Admin Control Panel</h2>
-                    <p>Welcome, P.D.T Sathsara!</p>
-                </div>
-            </div>
-        </main>
+        <main>{sections_html}</main>
     </div>
 
     <script>
-        // --- ALL LOGIC IN ONE PLACE ---
-        console.log("ZONE 94 System Loading...");
-        
+        // --- CONFIG ---
         const firebaseConfig = {{
             apiKey: "AIzaSyDsrbp-BPJRqJi8UPRx99KRNIALsQvKpxg",
             authDomain: "zone94-2553a.firebaseapp.com",
@@ -137,98 +116,69 @@ def create_unified_portal():
         const db = firebase.database();
         emailjs.init("ZgGkvBZgIOPcydTiO");
 
-        let authMode = 'login'; let generatedCode = ""; let tempUser = {{}};
-        const allChannels = {{
-            "SRI LANKA": ["Hiru News", "Sirasa TV", "TV Derana", "ITN", "Swarnavahini"],
-            "USA": ["ABC News", "NBC News", "CBS News", "Fox News", "CNN"],
-            "UK": ["BBC News", "Sky News", "GB News", "Channel 4", "Reuters"]
-        }};
+        let mode = 'login'; let genCode = ""; let tempUser = {{}};
 
-        function toggleMode(m) {{
-            authMode = m;
-            document.getElementById('u-name').classList.toggle('hidden', m === 'login');
-            document.getElementById('btn-l').style.color = (m === 'login' ? '#fff' : '#555');
-            document.getElementById('btn-s').style.color = (m === 'signup' ? '#fff' : '#555');
+        function setAuthMode(m) {{
+            mode = m;
+            document.getElementById('name-in').classList.toggle('hidden', m === 'login');
+            document.getElementById('l-btn').style.color = (m === 'login' ? '#fff' : '#555');
+            document.getElementById('s-btn').style.color = (m === 'signup' ? '#fff' : '#555');
         }}
 
         function checkSavedLogin() {{
-            const saved = localStorage.getItem('zone94_session');
-            if(saved) loginSuccess(JSON.parse(saved));
+            const user = localStorage.getItem('z94_user');
+            if(user) loginDone(JSON.parse(user));
         }}
 
-        function handleAuth() {{
-            const email = document.getElementById('u-email').value;
-            const pass = document.getElementById('u-pass').value;
-            
-            // ADMIN LOGIN
+        function runAuth() {{
+            const email = document.getElementById('email-in').value;
+            const pass = document.getElementById('pass-in').value;
+
+            // --- ADMIN BYPASS ---
             if(email === "contact.sthanu2009@gmail.com" && pass === "200928001301") {{
-                const admin = {{name: "Admin", email, isAdmin: true}};
-                localStorage.setItem('zone94_session', JSON.stringify(admin));
-                loginSuccess(admin);
+                loginDone({{name: "Admin", email, isAdmin: true}});
                 return;
             }}
 
-            if(authMode === 'signup') {{
-                const name = document.getElementById('u-name').value;
-                if(!name || !email || !pass) return alert("Please fill all fields!");
-                generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
+            if(mode === 'signup') {{
+                const name = document.getElementById('name-in').value;
+                if(!name || !email || !pass) return alert("Fill all fields!");
+                genCode = Math.floor(100000 + Math.random() * 900000).toString();
                 tempUser = {{name, email, pass}};
-                console.log("Sending code: " + generatedCode);
-                
-                emailjs.send("service_6j9200q", "template_352c0rr", {{ 
-                    to_email: email, 
-                    code: generatedCode 
-                }}).then(() => {{
-                    alert("Verification code sent to your email!");
-                    document.getElementById('auth-form').classList.add('hidden');
-                    document.getElementById('verify-form').classList.remove('hidden');
-                }}, (err) => alert("Email Error: " + err.text));
+                emailjs.send("service_6j9200q", "template_352c0rr", {{ to_email: email, code: genCode }})
+                .then(() => {{
+                    document.getElementById('auth-box').classList.add('hidden');
+                    document.getElementById('verify-box').classList.remove('hidden');
+                }}, () => alert("Email Send Error!"));
             }} else {{
                 db.ref('users/' + btoa(email)).once('value', s => {{
-                    const u = s.val(); if(u && u.pass === pass) {{
-                        localStorage.setItem('zone94_session', JSON.stringify(u));
-                        loginSuccess(u);
-                    }} else alert("Login Failed! Please sign up first.");
+                    const u = s.val();
+                    if(u && u.pass === pass) loginDone(u);
+                    else alert("Login Failed!");
                 }});
             }}
         }}
 
-        function confirmVerify() {{
-            if(document.getElementById('v-code').value === generatedCode) {{
-                db.ref('users/' + btoa(tempUser.email)).set(tempUser, () => {{
-                    localStorage.setItem('zone94_session', JSON.stringify(tempUser));
-                    loginSuccess(tempUser);
-                }});
-            }} else alert("Wrong verification code!");
+        function verifyNow() {{
+            if(document.getElementById('code-in').value === genCode) {{
+                db.ref('users/' + btoa(tempUser.email)).set(tempUser, () => loginDone(tempUser));
+            }} else alert("Wrong Code!");
         }}
 
-        function loginSuccess(user) {{
+        function loginDone(u) {{
+            localStorage.setItem('z94_user', JSON.stringify(u));
             document.getElementById('login-overlay').classList.add('hidden');
             document.getElementById('main-site').classList.remove('hidden');
-            document.getElementById('user-avatar').innerText = user.name.charAt(0).toUpperCase();
-            if(user.isAdmin) document.getElementById('nav-admin').classList.remove('hidden');
-            loadAllChannels();
         }}
 
-        function loadAllChannels() {{
-            const container = document.getElementById('all-channels-list'); container.innerHTML = "";
-            Object.keys(allChannels).forEach(country => {{
-                let group = `<div><h3 style="color:var(--bbc-red);">${{country}}</h3><div style="display:flex; flex-wrap:wrap; gap:10px;">`;
-                allChannels[country].forEach(ch => group += `<div style="background:#222; padding:15px; border-radius:10px; cursor:pointer;" onclick="alert('Loading...')">${{ch}}</div>`);
-                container.innerHTML += group + "</div></div>";
-            }});
+        function showCat(id, btn) {{
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('.category-section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(id + '-grid').classList.remove('hidden');
         }}
 
-        function switchNav(type, btn, cat) {{
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
-            document.getElementById('news-container').classList.toggle('hidden', type !== 'news');
-            document.getElementById('channels-container').classList.toggle('hidden', type !== 'channels');
-            document.getElementById('admin-container').classList.toggle('hidden', type !== 'admin');
-            if(cat) {{ document.querySelectorAll('.category-section').forEach(s => s.classList.toggle('hidden', s.id !== cat + '-grid')); }}
-        }}
-
-        function logout() {{ localStorage.removeItem('zone94_session'); window.location.reload(); }}
-        setInterval(() => {{ document.getElementById('live-clock').innerText = new Date().toLocaleTimeString(); }}, 1000);
+        function logout() {{ localStorage.removeItem('z94_user'); location.reload(); }}
     </script>
 </body>
 </html>
@@ -236,4 +186,4 @@ def create_unified_portal():
     with open("index.html", "w", encoding="utf-8") as f: f.write(final_html)
 
 if __name__ == "__main__":
-    create_unified_portal()
+    build_portal()
