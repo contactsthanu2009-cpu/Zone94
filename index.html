@@ -4,112 +4,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZONE 94 | Global Intelligence Portal</title>
+    <title>ZONE 94 | World's #1 AI Portal</title>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@300;400;700;900&display=swap');
-        :root { --bbc-red: #bb1919; --bg: #000; --card: #111; --text: #fff; }
+        :root { --bbc-red: #bb1919; --bg: #000; --text: #fff; }
         body { background: var(--bg); color: var(--text); font-family: 'Poppins', sans-serif; margin: 0; overflow-x: hidden; }
         .hidden { display: none !important; }
-        
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         .animate-up { animation: fadeInUp 0.5s ease forwards; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         
+        /* AUTH UI */
+        .login-overlay { position: fixed; inset: 0; background: #000; display: flex; justify-content: center; align-items: center; z-index: 3000; }
+        .login-card { background: #0a0a0a; padding: 40px; border: 1px solid #222; border-radius: 20px; text-align: center; width: 380px; }
+        input { width: 100%; padding: 14px; margin: 10px 0; background: #151515; border: 1px solid #333; color: #fff; border-radius: 8px; box-sizing: border-box; }
+        .main-btn { width: 100%; background: var(--bbc-red); color: #fff; border: none; padding: 16px; cursor: pointer; font-weight: 900; font-family: 'Bebas Neue'; font-size: 1.5rem; border-radius: 8px; }
+
+        /* MAIN UI */
         .ticker-wrap { background: #111; display: flex; justify-content: space-between; padding: 12px 20px; border-bottom: 1px solid #222; }
         .main-logo-bbc span { background: white; color: black; padding: 5px 15px; font-size: 2.2rem; font-family: 'Bebas Neue'; }
         .main-logo-bbc .num { background: var(--bbc-red); color: white; }
         .avatar-circle { width: 50px; height: 50px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; border: 4px solid var(--bbc-red); cursor: pointer; color: #000; }
-        
         .main-nav { background: #0a0a0a; display: flex; justify-content: center; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 1000; }
         .nav-btn { background: none; border: none; color: #888; padding: 18px 25px; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: 0.3s; }
         .nav-btn:hover, .nav-btn.active { color: #fff; border-bottom: 4px solid var(--bbc-red); background: #111; }
+        .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; padding: 30px; }
+        .bbc-card { background: #111; padding: 25px; border-radius: 12px; border: 1px solid #222; cursor: pointer; }
+        .section-header { font-family: 'Bebas Neue'; font-size: 2.5rem; border-left: 8px solid var(--bbc-red); padding-left: 20px; margin-bottom: 35px; text-transform: uppercase; margin-left: 30px; }
         
-        .content { padding: 30px; max-width: 1400px; margin: auto; min-height: 80vh; }
-        .section-header { font-family: 'Bebas Neue'; font-size: 2.5rem; border-left: 8px solid var(--bbc-red); padding-left: 20px; margin-bottom: 35px; text-transform: uppercase; }
-        .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 30px; }
-        .bbc-card { background: var(--card); padding: 30px; border-radius: 15px; border: 1px solid #222; cursor: pointer; transition: 0.4s; }
-        .bbc-card:hover { border-color: var(--bbc-red); transform: translateY(-5px); }
-
-        .login-overlay { position: fixed; inset: 0; background: #000; display: flex; justify-content: center; align-items: center; z-index: 3000; }
-        .login-card { background: #0a0a0a; padding: 40px; border: 1px solid #222; border-radius: 20px; text-align: center; width: 380px; }
-        input, select, textarea { width: 100%; padding: 14px; margin: 10px 0; background: #151515; border: 1px solid #333; color: #fff; border-radius: 8px; box-sizing: border-box; }
-        .main-btn { width: 100%; background: var(--bbc-red); color: #fff; border: none; padding: 16px; cursor: pointer; font-weight: 900; font-family: 'Bebas Neue'; font-size: 1.5rem; border-radius: 8px; }
-
-        .ch-country-group { margin-bottom: 40px; }
-        .ch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
-        .ch-card { background: #111; border: 1px solid #333; color: #fff; padding: 25px; border-radius: 12px; cursor: pointer; text-align: center; font-weight: 900; font-family: 'Bebas Neue'; font-size: 1.2rem; transition: 0.3s; }
-        .ch-card:hover { background: var(--bbc-red); transform: translateY(-5px); }
-
+        /* MODALS */
         .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: flex; justify-content: center; align-items: center; z-index: 4000; }
-        .modal-photo { width: 150px; height: 150px; border-radius: 50%; border: 4px solid var(--bbc-red); margin-bottom: 20px; object-fit: cover; box-shadow: 0 0 20px var(--bbc-red); }
+        .modal-photo { width: 150px; height: 150px; border-radius: 50%; border: 4px solid var(--bbc-red); margin-bottom: 20px; box-shadow: 0 0 20px var(--bbc-red); }
         .social-btn { padding: 10px 20px; border-radius: 5px; text-decoration: none; color: #fff; font-weight: bold; margin: 5px; display: inline-block; }
-        
-        #user-tooltip { position: absolute; top: 90px; right: 50px; background: #0a0a0a; border: 1px solid #333; border-radius: 15px; padding: 25px; width: 280px; z-index: 2000; }
     </style>
 </head>
-<body>
+<body onload="checkSavedLogin()">
 
     <div id="login-overlay" class="login-overlay">
         <div class="login-card">
-            <div class="main-logo-bbc" style="margin-bottom:20px;"><span>Z</span><span>O</span><span>N</span><span>E</span><span class="num">94</span></div>
-            <div style="display:flex; margin-bottom:15px; border-bottom: 1px solid #222;">
-                <button onclick="toggleAuth('login')" id="tab-l" style="flex:1; background:none; color:#fff; border:none; padding:10px; cursor:pointer; font-weight:bold;">LOGIN</button>
-                <button onclick="toggleAuth('signup')" id="tab-s" style="flex:1; background:none; color:#555; border:none; padding:10px; cursor:pointer; font-weight:bold;">SIGNUP</button>
+            <div id="auth-form">
+                <div class="main-logo-bbc"><span>Z</span><span>O</span><span>N</span><span>E</span><span class="num">94</span></div>
+                <div style="display:flex; margin:20px 0; border-bottom:1px solid #222;">
+                    <button onclick="toggleMode('login')" id="btn-l" style="flex:1; background:none; color:#fff; border:none; padding:10px; cursor:pointer;">LOGIN</button>
+                    <button onclick="toggleMode('signup')" id="btn-s" style="flex:1; background:none; color:#555; border:none; padding:10px; cursor:pointer;">SIGNUP</button>
+                </div>
+                <input type="text" id="u-name" placeholder="Full Name" class="hidden">
+                <input type="email" id="u-email" placeholder="Email Address">
+                <input type="password" id="u-pass" placeholder="Password">
+                <button class="main-btn" onclick="handleAuth()">PROCEED</button>
             </div>
-            <input type="text" id="reg-name" placeholder="Full Name" class="hidden">
-            <input type="email" id="auth-email" placeholder="Email Address">
-            <input type="password" id="auth-pass" placeholder="Password">
-            <button class="main-btn" onclick="handleAuth()">ENTER THE ZONE</button>
+            <div id="verify-form" class="hidden">
+                <h3 style="color:var(--bbc-red); font-family:'Bebas Neue';">VERIFY YOUR EMAIL</h3>
+                <p style="font-size:12px; color:#666;">Enter the code sent to your email.</p>
+                <input type="text" id="v-code" placeholder="6-Digit Code">
+                <button class="main-btn" onclick="confirmVerify()">VERIFY ACCOUNT</button>
+            </div>
         </div>
     </div>
 
     <div id="main-site" class="hidden">
-        <div class="ticker-wrap">
-            <div class="ticker" id="main-ticker">🚀 ZONE 94 — WORLD'S NUMBER 1 AI PORTAL — ALL SYSTEMS ACTIVE — </div>
-            <div id="live-clock" style="color:#666; font-weight:bold">00:00:00</div>
-        </div>
-
-        <header class="site-header" style="display:flex; justify-content:space-between; align-items:center; padding:20px 40px;">
+        <div class="ticker-wrap"><div class="ticker" id="main-ticker">🚀 ZONE 94 — WORLD'S NUMBER 1 AI PORTAL — </div><div id="live-clock" style="color:#666; font-weight:bold">00:00:00</div></div>
+        <header style="display:flex; justify-content:space-between; padding:20px 40px; align-items:center;">
             <div style="width:100px"></div>
             <div class="main-logo-bbc" onclick="window.location.reload()"><span>Z</span><span>O</span><span>N</span><span>E</span><span class="num">94</span></div>
-            <div id="user-avatar" class="avatar-circle" onclick="toggleTooltip()">U</div>
+            <div id="user-avatar" class="avatar-circle" onclick="logout()">U</div>
         </header>
-
         <nav class="main-nav">
-            <button class="nav-btn active" onclick="switchNav('news', this, 'world')">World News</button>
-            <button class="nav-btn" onclick="switchNav('news', this, 'sports')">Sports News</button>
-            <button class="nav-btn" onclick="switchNav('news', this, 'tech')">Tech News</button>
-            <button class="nav-btn" onclick="switchNav('channels', this)">Live Channels</button>
-            <button class="nav-btn hidden" id="nav-admin" onclick="switchNav('admin', this)" style="color:var(--bbc-red)">ADMIN PANEL</button>
+            <button class="nav-btn active" onclick="switchNav('news', this, 'world')">World</button>
+            <button class="nav-btn" onclick="switchNav('news', this, 'sports')">Sports</button>
+            <button class="nav-btn" onclick="switchNav('news', this, 'tech')">Tech</button>
+            <button class="nav-btn" onclick="switchNav('channels', this)">Channels</button>
+            <button class="nav-btn hidden" id="nav-admin" onclick="switchNav('admin', this)" style="color:var(--bbc-red)">ADMIN</button>
             <button class="nav-btn" onclick="showAbout()">About Us</button>
         </nav>
-
         <main class="content">
-            <div id="news-container" class="animate-up">
-                <div id="manual-news-display"></div>
-                
+            <div id="news-container">
         <div id="world-grid" class="category-section animate-up">
             <h2 class="section-header">WORLD NEWS</h2>
             <div class="news-grid">
             <div class="bbc-card" onclick="window.open('https://news.google.com/rss/articles/CBMilAJBVV95cUxOakFoU0VGUVhncUZBRXNNcmplVzdMQlVmRE90SzZqT3RDZnFibjE1MFJrRjFXNDJMTUc5bU1mRWpwZE5zSkItazZaZ2Z2YjhrbDRGbXdGU0sxMGFZWWlfOXd4NTlLUE5MZkp1QW4zb3dCVXRhRGVzQ3Y3ZHh3TVVFV1JRX1NhY1RSQ2JQRFVjcHRmZC1FaXYwLWcybVpyRXgwT09tbkxBem53YS1MUDlJaVYtTjhkVV95YU5TaXVacTVOUklQTnMtcmltX014dzZiRjFlZFQyanZFS1JXUmZ6SC1WSHplRGVBZExpblVhVnZaU3g0ME1ac3FBbWwwR2ZBTW9EbzVaTkFXbm1WVmw1SFRmMFbSAZwCQVVfeXFMTzJMZ2FBcWxjc2RfWVlqQXRaaWtJbkZqWlFzaDNjWFM1V3RqZU80TGpETERYR3lkYVRxQTN3ODR5bmFMMDBaM24xWTY4ZE5XakkzR2FYVmtoZ21LaXk3ZVRxY1prdUtXeGs1TUxpcjVOTXFoWng3dFVGTHpkNkg4bEcyeXVnUXpBUEZ1R2NjME1ZVnBMMGNqZm1NQ0tBWDFCUXV4VWpvbUY4cVFOQ2R4bEpoVzR0aHJDYjE1UGsxalcxM0JxWW5ZX3FLX2t1bm9IUU00MlNrc2ctOVRYdk5jMHZXd3RfNlpUb2UzUV8ydmgwWU15ZG1wLW9KZjhwVW5FR3NDUE5GVDRHejVMM1RkcnFHUlhYM3NmZ0h2TzM?oc=5', '_blank')">
                 <span class="category-tag">WORLD</span>
-                <h3>US-Israel-Iran War LIVE: Russian Oil Tanker 'Aqua Titan', US Ship Carrying LPG Reach India - NDTV</h3>
+                <h3>US-Israel-Iran War LIVE: PM Modi To Chair High-Level Cabinet Meet Amid Middle East War Concerns - NDTV</h3>
                 <p>Global Intelligence Report.</p>
             </div>
             <div class="bbc-card" onclick="window.open('https://news.google.com/rss/articles/CBMijgJBVV95cUxORk1XdUhYcmpDRjNUZ05JMmIyYkJ3NzVYaVJqb0FQMEdsbnRUOTB4N3VDTVkzN2pDRHhJb2cxNkJvMEZCZDJ5ZnkxcXpCR1h1OGRHaHNTNWVKRVJDcmluVE4yeV9NOUZNTjJmOHYxR0YxUjBtZXdtYmd4eXNiNXkwQ2dSb0hPVXJHYTE2THVLVHY4LXJSTjNNQlNuMlJGQXhsajY1bDNiem1pZHBqRmdETFFxbnMyMU94RzBYSDFoUG1ESVVwekc1ZS1BMWJCTlhRdlVGTTRSdy1CVXRRaGlldi1KRk1hdWsyV2Jkd2FCMFFjWGoxTkg4c3hLNWdIWWtlR0xWUENjY3doN0N5VHfSAZMCQVVfeXFMTm4tcXNxa2N4REtLNUN2MFh2clp6WGRzUFd2RlVJSUFZY3dpZW1Rd3U5ZkgtVDkwSEppTkQzOC13UFFfeFpmaF9TSTVQQlM1MXhydjRocHF3NWFnaFd3bFpNT0hlLUFSYnJtNF85eUtIWUZUYTRWbDJOR3FLczRMaDJnQWxvSTktaUFnOWF5OW5OQzh4Q2JCOG9WWmRDY2hZRTRHY2JuU2JJZzY2NXVucXRHSUlUUjRRSzlub19rSlprSTJfcm5QMERUTWVENVZIZ25XUElQbDNTQTROdWJPcFJ6ZVd6Vlh3Z2FRWlJ0STJpNFI5cEhKSnVFdS1qeDFINmIwbHBiRGt3dHBwNVV4cC1tLWc?oc=5', '_blank')">
                 <span class="category-tag">WORLD</span>
-                <h3>Iran Israel War News LIVE: Fresh blasts heard in central Israel after Iranian strikes in Dimona, Arad | World News - Hindustan Times</h3>
+                <h3>Iran Israel war news LIVE: Eight attacks targeted US centre at Iraq's Baghdad airport overnight, say officials | World News - Hindustan Times</h3>
                 <p>Global Intelligence Report.</p>
             </div>
-            <div class="bbc-card" onclick="window.open('https://news.google.com/rss/articles/CBMiVEFVX3lxTE1EajNYQzVGMkZTQ1d1UlR4d0xMYUQtUzBaNk56TjkyQlZ6aThRN2x2VldfWGdQWWN3amsxWF9nU3R4b1h6VlJvbUdvaFY1RjVxaHM4WQ?oc=5', '_blank')">
+            <div class="bbc-card" onclick="window.open('https://news.google.com/rss/articles/CBMiWkFVX3lxTE1HdHpOM0JFTF96R1dlUEtVcFFHckhjeV9CTU5nb0pDNXZiRlYzYVVCeHRPS25uS3FRaVF5SzI5eV9vM25Mei1Ydl9BNWNUNU50Sm1yRWJBZ0xRZw?oc=5', '_blank')">
                 <span class="category-tag">WORLD</span>
-                <h3>Trump says US will ‘obliterate’ Iran’s power plants if Strait of Hormuz not open before 48-hour deadline - BBC</h3>
+                <h3>Trump at a crossroads as US weighs tough options in Iran - BBC</h3>
                 <p>Global Intelligence Report.</p>
             </div>
-            <div class="bbc-card" onclick="window.open('https://news.google.com/rss/articles/CBMieEFVX3lxTE5VdUJLN1NPT3VPYTdMVU1RWFY0WHVhZXd0Y1pUZVFCdkEwOE5ma0d2MEIwYWRSWkhjVWdvdzExMXVpb290ckJjS3VBRWtVT3JpeGUybzdrdS1LTzA0U0lYRWdGUTZ6ZFo1ZlZ5dTBTVGhWNXdPME42dw?oc=5', '_blank')">
+            <div class="bbc-card" onclick="window.open('https://news.google.com/rss/articles/CBMiuAFBVV95cUxPRVNkS3Uxamk5cy1yR2NIRGNiUDUtU3NwaFlDUXZsLWtuSVgzUEJyeWF6WXNvZm94YlVwZkQzTmI5LVN1S1MweEVXZ0pIT0pwUWRGU2xfRGVoZWxNVVBYaW55cV9FZTFROEFXTzhTWEpjR05oWjZyaW93bUpmSFcwelAxcEJha0JBYm9qOGU4N3dhV0dWb29zWnE1LW5nV1VLNEw3S0hVLUg1a1RvRkxnaGE1Tmx3MEZ3?oc=5', '_blank')">
                 <span class="category-tag">WORLD</span>
-                <h3>Live updates: Iran war news; Trump threatens to ‘obliterate’ Iran’s power plants - CNN</h3>
+                <h3>‘The stakes are enormous’: how a prolonged Iran war could shock the global economy - The Guardian</h3>
+                <p>Global Intelligence Report.</p>
+            </div>
+            <div class="bbc-card" onclick="window.open('https://news.google.com/rss/articles/CBMieEFVX3lxTE1HdjkwYkdlLUVDSVRWRmhHU1dmRnYwN3VnR2lyREdza256MkJUb3RVal9UdzZIYzNYRXFxZklzRnVjQWRGNWdBWmJVeDVLOG9GeVd1b3hXdjY4RzBDWHdkdnlHUzQwS3pLb0I1bTNKYTN4WnVmNlFPOA?oc=5', '_blank')">
+                <span class="category-tag">WORLD</span>
+                <h3>Day 22 of Middle East conflict — Iran missiles hit Israel, injuring dozens - CNN</h3>
                 <p>Global Intelligence Report.</p>
             </div>
             <div class="bbc-card" onclick="window.open('https://news.google.com/rss/articles/CBMitwFBVV95cUxQT1NyUmtmN01va3J2TWR2WHFMa2pQUHc2cmp1dk1WMUtOOHRKZWFDWFd4MU9hNklRVVFZMW13UHJsYTFmU3FLckpILUVOSlVVNTJCQ1NHeldBSEtiYzVQTW4xMXh5QWJ6aHFhb08xUnBTcFM2ZHd3QXFuZTJ4T0luLWNsSnRaRFpfOEdsU093M3JEb2VyaXhwZzMzV1hrUllUa0VpbFVQdUJZaC1WS1FhODRRWUJ3ZWM?oc=5', '_blank')">
@@ -126,11 +123,6 @@
                 <span class="category-tag">WORLD</span>
                 <h3>An Aural Companion for Decades, CBS News Radio Crackles to a Close - The New York Times</h3>
                 <p>Global Intelligence Report.</p>
-            </div>
-            <div class="bbc-card" onclick="window.open('https://news.google.com/rss/articles/CBMimAFBVV95cUxOY1pWMDJDNkJvMHhTSUQwaXdtVFdielNvUUZNYXphTnhnWkF1eVJYNjhycnVkVXZlV0lZcXU0d2lTTG51NW0zRy1JMFNMMXp3R3N1Ymx4dXVMcXlnaWNfczAtRkN0dll0UWh1RmtUSzF5QlVaZFdHRV9kSjNvQ090dkRSVHF6eU1mdTM1TFJtNDZaX0xpanlxbQ?oc=5', '_blank')">
-                <span class="category-tag">WORLD</span>
-                <h3>Almost 100 wounded in Iranian missile strikes on southern Israel - The Guardian</h3>
-                <p>Global Intelligence Report.</p>
             </div></div></div>
         <div id="sports-grid" class="category-section animate-up">
             <h2 class="section-header">SPORTS NEWS</h2>
@@ -140,39 +132,39 @@
                 <h3>NCAA tournament takeaways, Day 3: Big Ten reigns supreme, 'Cinderella' Texas and an extra edge for Houston - Yahoo Sports</h3>
                 <p>Global Intelligence Report.</p>
             </div>
-            <div class="bbc-card" onclick="window.open('https://news.google.com/rss/articles/CBMie0FVX3lxTE8wNWVBVGdRVGd6SjNWQjgtbFVrSldzaUNlMnM2MnpBSjMtLWgyWHJwbGx6WTZ0UHZYRTg3dnpZaTF4R0swQXpFZ3p2dl81YnVCNTNHWnpjcU1uSVlVRU5TT3REWTNMSGV3cFlqbktqbXNxaG5MazNES0tndw?oc=5', '_blank')">
-                <span class="category-tag">SPORTS</span>
-                <h3>Giants' Cam Skattebo apologizes after calling CTE and asthma 'fake' and an 'excuse' - CBS Sports</h3>
-                <p>Global Intelligence Report.</p>
-            </div>
-            <div class="bbc-card" onclick="window.open('https://news.google.com/rss/articles/CBMi2wFBVV95cUxQRXJYUEZmVUJWSEE5LU9aMTVZbTA2RTNNRFZud0hVMUEyaGVQMW9FSFJNVHRpUW55bXVISzhWNWlScENQRUFtTlFQcF9CNE1UV1lUS2lYTG96RFpqLTJuem9NdDNKVkxIU3BHNHFjdE54TUc2SkFHZV9LTEpIM2x1ZUF3d01HU0pqUEdMS2lBZDhyOTlJc01TdXo0VmhqMUlXYTVfRmFROFJfdUw4dnBWWlM2X3V4R2lyTThXMUFSem8zSUhWWDZ0dEZ6b0xaTVJneFYtb3ZNaTRwNlk?oc=5', '_blank')">
-                <span class="category-tag">SPORTS</span>
-                <h3>Flag Football Classic: Team USA rolls through NFL stars Tom Brady, Joe Burrow and Jalen Hurts - Yahoo Sports</h3>
-                <p>Global Intelligence Report.</p>
-            </div>
-            <div class="bbc-card" onclick="window.open('https://news.google.com/rss/articles/CBMizAFBVV95cUxQNlRpaVU3T2tidFk3Z3g5U01Nd2FsNERNSmE0cF9iZXR4T2hhRUJNNEtkd1FrOXhnbkVjT2lLQWMzaUVqd1Npc01zcTZnX2VhSXJ1STU3S29ZYnludWhNNDQ5M1JoZDNIVzRUOU9XcTZkczVWWXdmX2Y2Q3MxMUk4emNNSGxhamhISGNmYTdzNFdJS2RHUjU2cVFpZ3c2Z3dJRDVhaHJXeTF2VGRLV09sbXZVbzVnQnM1bm1kWkJmYnMyTmhzcWhNWlZzQWjSAdIBQVVfeXFMTUNfazBmeE5tWGMydlFLblVIX3IzeXZMbV84WGVMbHhFU0dHVmhvS0pkWjdkRmRzU3RTclhKMmhUeFFxMUxQbDZNRks4OG80SzBPWkRCUG9udWxwSktodzJZMWtvY1l1NjJtZzlxX1hTaXJPU1hvbGEyWGg1NzJHX2ExTnNSNVdfQzFWUF9UN21iQll2WlFUU0dIRWlkQlY1cm5ZYWk4SWRLVTY5UlBUNFNVYjBqLUxoYlBKSFFvUEFoV28xOVdVYXpGQ1ZoRFVoaG1R?oc=5', '_blank')">
-                <span class="category-tag">SPORTS</span>
-                <h3>Legendary sports agent suggests fresh approach teams should take as NFL ticket prices continue to skyrocket - Fox News</h3>
-                <p>Global Intelligence Report.</p>
-            </div>
             <div class="bbc-card" onclick="window.open('https://news.google.com/rss/articles/CBMiogFBVV95cUxORlFzRnpodFkwaG9iaDc4bnlzajBRRzYyWHd2R09PR1psQVB6MnVmN3NzMjBmcTl3eWlSVzFDNVJxZURnTThWaUw0ejItRmVIeEZTbWU0RHk5OXNVanowLUVXUUNhN3Z2a1lPdHhlLUFvMEQ2dzlsczFxQmFVM2pmLXZqQkozd1VEbWI5ZXl4YkZnMFdkUVZET3NybVQ4dFVSd1E?oc=5', '_blank')">
                 <span class="category-tag">SPORTS</span>
                 <h3>Blue Jackets' Kent Johnson: Snaps goal drought Saturday - CBS Sports</h3>
                 <p>Global Intelligence Report.</p>
             </div>
-            <div class="bbc-card" onclick="window.open('https://news.google.com/rss/articles/CBMihAFBVV95cUxOQ1o1TDlGY0d4V1JJbWNaZUZQUDE0VGJuTWxiSFZmZ3BYUHROei14dnBoQUFWSWF1NU50dEZpSGdSNEo4Nk1OekdrRWFTYWdmdFR2a3dJSndTSkZNOHlueU5ja2NzNTdFMXoxWDRtbGtVQk5uaWE1QnhoemxWX2tLdC1sQVU?oc=5', '_blank')">
+            <div class="bbc-card" onclick="window.open('https://news.google.com/rss/articles/CBMigAFBVV95cUxOYWxGQlExXzNwVVdQcG81bkRTOWRiN2NnU3JlU0xPWTRONmRYS2s5WGpnQmhYSllZbGNKOWpYRHo3cW9UOXVMZkxUNkgyV0FDT3NsWHg4Sjc4SDRlRzBKSG9jZHRoQ0hVUTk4Y1k1bzNKbXhRZTViY0Z6QXFhRHQwMw?oc=5', '_blank')">
                 <span class="category-tag">SPORTS</span>
-                <h3>Manchester City XI vs Arsenal – Predicted lineup and team news - Yahoo Sports</h3>
+                <h3>49ers News: 25 more Sundays until NFL football is back - Yahoo Sports</h3>
                 <p>Global Intelligence Report.</p>
             </div>
-            <div class="bbc-card" onclick="window.open('https://news.google.com/rss/articles/CBMigAFBVV95cUxQb2lxWjBjQ1JPbTBpeTZ4U1Ffa29nMUl2VV9pbFFwTFVIQ1pEZC1xcmgxMEFVQWtGM1hUQXZReGhzS0JOTjlCeTZYV1dPNWdlNHU1NExucE5raWdKNHZCSDZ0eW5OM2FtNWJNTHlmVGV4cmFXRWpjbWtrS2RDOG1tag?oc=5', '_blank')">
+            <div class="bbc-card" onclick="window.open('https://news.google.com/rss/articles/CBMigAFBVV95cUxOSnk4S1I1X2IwYlFiQ1V3VVJyODdpaDZ4cmpTV0UxdWhoUkwwS0xTUkNEMUNFUWpPOXFvWTR2a0JDMGEweE0wV3NyS3BMdVhUdjNVUXhwd1M5ZERpMHRzeTdkbllfN1EwUW8zYWdVTkNQTEtOdTlxVHBPaTZMeU1OdA?oc=5', '_blank')">
                 <span class="category-tag">SPORTS</span>
-                <h3>Celtic XI vs Dundee United – Predicted lineup and team news - Yahoo Sports</h3>
+                <h3>FC Barcelona News: 22 March 2026 - Yahoo Sports</h3>
+                <p>Global Intelligence Report.</p>
+            </div>
+            <div class="bbc-card" onclick="window.open('https://news.google.com/rss/articles/CBMixAFBVV95cUxOSERISjVBMEhaX0cxNVZEVXkzYk40ZnhyMmNBTUxya2dmQ09ROUtNNzVfQ2JndFpZWmRKT0JOaG1nNGZiM3NfVW9uelBIQ0liR1JubV9xaGRGMlVmSFZSTmM2aFMxbFUteUg0bFQ0UWVIeU1tRnhHUkxmd3hFMTkwRXI4R2ZqbEdEckU3cTk5QUVBLVJXWVMzdWtDVDQzVDJKazBlak51QnJtaEhwQlBzYl9fRGhWN0ZXb19INGk5OEpUM2kx0gHKAUFVX3lxTE5MNVRkR0NkWUd6LWVtUW1XWnUyY1JUQjNWRmJtTFQzV3hrMVY4azJhMEU4QlNmQTdEekZJd25FWUNRbU9kdTBRLTdxYjR6eVM4LTRySkdQTDBOMnRUNU1abFZyN0RsWGtzSmZIbEU1UHJfTFRDSXRVdmE2eVlSemtNalJ0RVlZcmFfYWUzWlFJNmdJUFlNeFo3cXF2bTl1SXZMbXEzaGlYM0NKZVljWXBkZ0xyUnk2d1Q2NUxPWnEybTZhOXVvWS15U3c?oc=5', '_blank')">
+                <span class="category-tag">SPORTS</span>
+                <h3>Tallest college basketball player ever towers over 6-foot-8 opponent in viral March Madness moment - Fox News</h3>
                 <p>Global Intelligence Report.</p>
             </div>
             <div class="bbc-card" onclick="window.open('https://news.google.com/rss/articles/CBMitgFBVV95cUxNeDN1eXhjbUIwLTk2SzFRWTh4VnZGanZTUVNjT181akJsdUNFa2dhWFg1X3pJVHdId0lHY09pdVVYek5YQ1VzNkMtS0Nma3VkX0hiem1RNlRhdUE2Mm4tN1JzRjlBZ00zTUZ0NHhkSS1TSFVyeW1Ic1F5MlpUMlVSN0ZZVWNtN3RvUFVIVTR2RC1pTVl6akZib2hjN1hzZHZ6TVgyU2VwcHRGRGpENHgtRXV4UjJQQQ?oc=5', '_blank')">
                 <span class="category-tag">SPORTS</span>
                 <h3>Reusse: Spotlight on Gophers women’s sports is a welcome sight - Star Tribune</h3>
+                <p>Global Intelligence Report.</p>
+            </div>
+            <div class="bbc-card" onclick="window.open('https://news.google.com/rss/articles/CBMi3wFBVV95cUxPUTZpdGdlRUNkRHNvN2hBM1FGSll2dFItTlQwSUFjaFpIaVZYWEstMEIwMFFsTldtVE9MX1RTS2JQd3lZN1BON2tfcGh5MVVEYnBTRGV1RnlXOWpqck9OVnBNck1ZR2gzdV9mYVFvbFdHZXl0M3hLcHNYWV9fQ21fenhYR2lZWXdEeHFSYjZIV0wyeld4UWF1cnF1aC1fNXB6TXF2b2NNUVJnZURzSEJoOUJXR0xkdTJnbHNDakpsejl4MnJUbndSWDFYRTlmd3JaMVNwcXkwTk9pTUFsR3o4?oc=5', '_blank')">
+                <span class="category-tag">SPORTS</span>
+                <h3>Big East Outdoor Sports Show at Accelerate Sports Complex This Weekend - WKTV</h3>
+                <p>Global Intelligence Report.</p>
+            </div>
+            <div class="bbc-card" onclick="window.open('https://news.google.com/rss/articles/CBMipAFBVV95cUxPcVJBZEpRSlZxUnRveWkyTUtMeXRfelNaWDRtLUh0ampYRzBjTXV3dXBjaW9WWWxwM05NWU5MTnlweTdQTHphZ2J0UEthaG1BcWpRX2dVZzYyOUhrcVNqbEF6eGZlYnpaVlgyTzJHSGRwQ2tOSmU0X3pOM1cxVDFFV0lGeWo0dWlnNFVaX0ZqM0tsSnNVMTNTUlEzN2dvZ282ZmVsUQ?oc=5', '_blank')">
+                <span class="category-tag">SPORTS</span>
+                <h3>Researcher: Addressing runaway college sports spending in Virginia - Cardinal News</h3>
                 <p>Global Intelligence Report.</p>
             </div></div></div>
         <div id="tech-grid" class="category-section animate-up">
@@ -181,6 +173,11 @@
             <div class="bbc-card" onclick="window.open('https://news.google.com/rss/articles/CBMivAFBVV95cUxNcnA0cVVyWnVqZk9wcVo4bm9tRm5oSkluc1JwdU05UDJFcnJZWWJWMEZKWndDM0FBNlNFOFk3STJrYnJ1VUhKYVpYVTVBRjJLdk96WEFGXzBNVzl4Z1Z5SXE0RkdOZDE5MnBmcE9NanNaV1k5d0s2cjRwZFBWQjJHbE5YbGNackJwUXJJbUZmdVRldEJuWmlHaGE3dDh0aGRBOU94N2NHSW4yZTlvakhhTWJxZFdfRWFqZUc3QQ?oc=5', '_blank')">
                 <span class="category-tag">TECH</span>
                 <h3>VideoRay Celebrates Largest ROV Yet with New Mission Specialist Wraith - Marine Technology News</h3>
+                <p>Global Intelligence Report.</p>
+            </div>
+            <div class="bbc-card" onclick="window.open('https://news.google.com/rss/articles/CBMiogFBVV95cUxQS0J3c1FSZXQwakxVMTVuc0V3dV9FSXdaNmhJaGZaVTNCeGFud3ZHSllTbnZVTTZhWmFiLV9LbGFSTmZLRGxObG5Oc3M5Z3RXQ2Vqb1ZHWnI1TVJrQU45QVl2VXRpaUY1UHFNV00xRjVuZFp4WjFjbi0zR2w2YXBUSHFSLVlvczNtcjBuaVJuWmJRR2pDQXpUc0lULThVT1pKSlE?oc=5', '_blank')">
+                <span class="category-tag">TECH</span>
+                <h3>New report finds technology harming wellbeing of Native youth in Minnesota - ictnews.org</h3>
                 <p>Global Intelligence Report.</p>
             </div>
             <div class="bbc-card" onclick="window.open('https://news.google.com/rss/articles/CBMikAFBVV95cUxQQ28yZTZxWUF6cjB6dU5hNFNDcXJ1SHA0dlQya21GVlNQNndOeFB3MmJyTE1XWks2Y2p0cWs5ZHNjb19BLUFRanY3bExLOHRHT2lXUzRSWXZYWkFldG14bkVVd0JOME1Za2llZi1XaFZjWUpUd1lEMTJTaENpVEpzb055YnlBTGVGUU9EY1NNSjY?oc=5', '_blank')">
@@ -193,19 +190,14 @@
                 <h3>Small Business Tech News: Google Maps Gets A Big AI Upgrade - Forbes</h3>
                 <p>Global Intelligence Report.</p>
             </div>
-            <div class="bbc-card" onclick="window.open('https://news.google.com/rss/articles/CBMiogFBVV95cUxQS0J3c1FSZXQwakxVMTVuc0V3dV9FSXdaNmhJaGZaVTNCeGFud3ZHSllTbnZVTTZhWmFiLV9LbGFSTmZLRGxObG5Oc3M5Z3RXQ2Vqb1ZHWnI1TVJrQU45QVl2VXRpaUY1UHFNV00xRjVuZFp4WjFjbi0zR2w2YXBUSHFSLVlvczNtcjBuaVJuWmJRR2pDQXpUc0lULThVT1pKSlE?oc=5', '_blank')">
-                <span class="category-tag">TECH</span>
-                <h3>New report finds technology harming wellbeing of Native youth in Minnesota - ictnews.org</h3>
-                <p>Global Intelligence Report.</p>
-            </div>
             <div class="bbc-card" onclick="window.open('https://news.google.com/rss/articles/CBMiUkFVX3lxTE5xc1ZETzNSQnR0UnducUtIRUtmTWRocmN3a0hNeUJFZC02VDJIa3NaTmVhZmVyTHB5LVNyWWJoU1g5dzRGQmFncjBUeU1KRUNfc2c?oc=5', '_blank')">
                 <span class="category-tag">TECH</span>
                 <h3>Tech Weekly: Nasdaq Logs Fourth Week of Losses as Middle East Tensions Escalate - Investing News Network</h3>
                 <p>Global Intelligence Report.</p>
             </div>
-            <div class="bbc-card" onclick="window.open('https://news.google.com/rss/articles/CBMiuAFBVV95cUxOb2o4T0NNbFJiYTBfMnpYS1lhU2tva0cweDZwdUpqWjJKNC01eU9oWkJuVlYxZnBtUDVBT3hqNHRBbTF0dTlRQlRQYU40ZXJ0dk1kWV9EbXp2ak9yOGVXWFZocHJFaHhSeUh1d1VYXzA5S2RzZE05ekZjenBnQVhJWWZ5SFlSdjZmeWVmTU8xTGZzX1pOdzdGeGRJbklJUUFvbExVbUdtanhuMlh2blBLX1duQXBVX09f?oc=5', '_blank')">
+            <div class="bbc-card" onclick="window.open('https://news.google.com/rss/articles/CBMikwFBVV95cUxQNFo5YUJCaU10OFhsQjVmUjYzNFYtMmxUN2pGQ3Q5RFFzM2xDNnpnYlctRl96NkZocjRFdm8ycFFISEd4dllIV2dSWkxoaENqd2F1a3FnNWd6R0VCN0tJYzdZM0FhWllVNk1Xc01GTG1hRlJjeU1zckItODkzaHBvd2JXUlZsNFd1a2F5blducXpfSjA?oc=5', '_blank')">
                 <span class="category-tag">TECH</span>
-                <h3>Travis Kalanick Returns With a Plan to Rewire the Restaurant Tech Stack | - Restaurant Technology News</h3>
+                <h3>Photos: Design technology, hockey and signs of spring - Northeastern Global News</h3>
                 <p>Global Intelligence Report.</p>
             </div>
             <div class="bbc-card" onclick="window.open('https://news.google.com/rss/articles/CBMipAFBVV95cUxQbU9zNjJPNm5nZTY1QkZQeVYybGIxTWxzQkExS2gzME40bmVpV1ROYm1RRXhYNTFrRE9QSzJGMHdaN3FPT0hNSkJMdGVYSDRydV92Y3AxY0dqOFZmU2ptVmpsck1tNkdhamxmaGx2S2RqX1FsalVDeURrUHV6QkN5N3Y1c2p0S21hZ01ULVV3TW1icEhiVFBLVnRzcFNfRmN6MER4ZQ?oc=5', '_blank')">
@@ -213,48 +205,23 @@
                 <h3>Newport News patrol vehicle cameras, AI tech will tackle blight - The Virginian-Pilot</h3>
                 <p>Global Intelligence Report.</p>
             </div>
-            <div class="bbc-card" onclick="window.open('https://news.google.com/rss/articles/CBMikwFBVV95cUxQNFo5YUJCaU10OFhsQjVmUjYzNFYtMmxUN2pGQ3Q5RFFzM2xDNnpnYlctRl96NkZocjRFdm8ycFFISEd4dllIV2dSWkxoaENqd2F1a3FnNWd6R0VCN0tJYzdZM0FhWllVNk1Xc01GTG1hRlJjeU1zckItODkzaHBvd2JXUlZsNFd1a2F5blducXpfSjA?oc=5', '_blank')">
+            <div class="bbc-card" onclick="window.open('https://news.google.com/rss/articles/CBMiuAFBVV95cUxOb2o4T0NNbFJiYTBfMnpYS1lhU2tva0cweDZwdUpqWjJKNC01eU9oWkJuVlYxZnBtUDVBT3hqNHRBbTF0dTlRQlRQYU40ZXJ0dk1kWV9EbXp2ak9yOGVXWFZocHJFaHhSeUh1d1VYXzA5S2RzZE05ekZjenBnQVhJWWZ5SFlSdjZmeWVmTU8xTGZzX1pOdzdGeGRJbklJUUFvbExVbUdtanhuMlh2blBLX1duQXBVX09f?oc=5', '_blank')">
                 <span class="category-tag">TECH</span>
-                <h3>Photos: Design technology, hockey and signs of spring - Northeastern Global News</h3>
+                <h3>Travis Kalanick Returns With a Plan to Rewire the Restaurant Tech Stack | - Restaurant Technology News</h3>
                 <p>Global Intelligence Report.</p>
-            </div></div></div>
-            </div>
-
+            </div></div></div></div>
             <div id="channels-container" class="hidden animate-up">
-                <h2 class="section-header">Global Live Broadcasts</h2>
-                <div id="all-channels-list"></div>
+                <h2 class="section-header">Live Global Broadcasts</h2>
+                <div id="all-channels-list" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:15px; padding:30px;"></div>
             </div>
-
             <div id="admin-container" class="hidden animate-up">
                 <div style="background:#111; padding:30px; border-radius:15px; border:1px solid var(--bbc-red);">
-                    <h2 class="section-header">Admin Control</h2>
-                    <h3>Post Custom News</h3>
-                    <input type="text" id="admin-news-title" placeholder="Headline">
-                    <textarea id="admin-news-desc" placeholder="News Summary..."></textarea>
-                    <button class="main-btn" style="width:auto; padding:10px 40px;" onclick="addManualNews()">Post Now</button>
-                    <h3 style="margin-top:40px;">Update Site Ticker</h3>
-                    <input type="text" id="admin-ticker-input" placeholder="New Scrolling Text">
-                    <button class="main-btn" style="width:auto; padding:10px 40px;" onclick="updateTicker()">Update Ticker</button>
-                    <h3 style="margin-top:40px;">User Login Logs</h3>
-                    <table style="width:100%; color:#aaa; font-size:13px; text-align:left;">
-                        <thead><tr style="color:var(--bbc-red);"><th>Email</th><th>Time</th></tr></thead>
-                        <tbody id="log-tbody"></tbody>
-                    </table>
+                    <h2 class="section-header">Admin Control Panel</h2>
+                    <input type="text" id="admin-ticker-input" placeholder="Update Ticker Text">
+                    <button class="main-btn" style="width:auto; padding:10px 40px; margin-top:10px;" onclick="updateTicker()">Update</button>
                 </div>
             </div>
         </main>
-        
-        <footer style="text-align:center; padding:40px; border-top:1px solid #222; font-size:11px; color:#444;">
-            ZONE 94 | ALL RIGHTS RESERVED © 2026 | GLOBAL INTELLIGENCE ENGINE
-        </footer>
-    </div>
-
-    <div id="user-tooltip" class="hidden">
-        <h4 style="margin:0; color:var(--bbc-red); font-family:'Bebas Neue';">USER ACCOUNT</h4>
-        <p id="tp-name" style="margin:10px 0; font-size:13px;">Name</p>
-        <p id="tp-email" style="margin:5px 0; font-size:12px; color:#555;">Email</p>
-        <button class="main-btn" style="font-size:12px; padding:8px; margin-top:10px;" onclick="toggleTooltip()">OK</button>
-        <button class="main-btn" style="font-size:12px; padding:8px; margin-top:5px; background:#333;" onclick="window.location.reload()">LOGOUT</button>
     </div>
 
     <div id="about-modal" class="modal-bg hidden" onclick="this.classList.add('hidden')">
@@ -270,126 +237,7 @@
         </div>
     </div>
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyDsrbp-BPJRqJi8UPRx99KRNIALsQvKpxg",
-            authDomain: "zone94-2553a.firebaseapp.com",
-            databaseURL: "https://zone94-2553a-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "zone94-2553a",
-            storageBucket: "zone94-2553a.firebasestorage.app",
-            appId: "1:722640877424:web:5e145b4c767af86e60c1b5"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-
-        let mode = 'login';
-        const allChannels = {
-            "SRI LANKA": ["Hiru News", "Sirasa TV", "TV Derana", "ITN", "Swarnavahini"],
-            "USA": ["ABC News", "NBC News", "CBS News", "Fox News", "CNN"],
-            "UK": ["BBC News", "Sky News", "GB News", "Channel 4", "Reuters"],
-            "INDIA": ["NDTV", "Aaj Tak", "India Today", "Republic World", "Zee News"]
-        };
-
-        function toggleAuth(m) {
-            mode = m; document.getElementById('tab-l').style.color = (m==='login'?'#fff':'#555'); document.getElementById('tab-s').style.color = (m==='signup'?'#fff':'#555');
-            document.getElementById('reg-name').classList.toggle('hidden', m==='login');
-        }
-
-        function handleAuth() {
-            const email = document.getElementById('auth-email').value;
-            const pass = document.getElementById('auth-pass').value;
-            if(email === "contact.sthanu2009@gmail.com" && pass === "200928001301") { loginSuccess({name: "Admin", email, isAdmin: true}); }
-            else if(mode === 'signup') {
-                const name = document.getElementById('reg-name').value;
-                db.ref('users/' + btoa(email)).set({name, email, pass}, () => { alert("Success! Now Login."); toggleAuth('login'); });
-            } else {
-                db.ref('users/' + btoa(email)).once('value', s => {
-                    const u = s.val(); if(u && u.pass === pass) loginSuccess(u); else alert("Invalid Login!");
-                });
-            }
-        }
-
-        function loginSuccess(user) {
-            document.getElementById('login-overlay').classList.add('hidden');
-            document.getElementById('main-site').classList.remove('hidden');
-            document.getElementById('user-avatar').innerText = user.name.charAt(0).toUpperCase();
-            document.getElementById('tp-name').innerText = user.name;
-            document.getElementById('tp-email').innerText = user.email;
-            if(user.isAdmin) document.getElementById('nav-admin').classList.remove('hidden');
-            db.ref('logs').push({email: user.email, time: new Date().toLocaleString()});
-            loadAllChannels();
-            listenForTicker();
-            listenForManualNews();
-        }
-
-        function loadAllChannels() {
-            const container = document.getElementById('all-channels-list');
-            container.innerHTML = "";
-            Object.keys(allChannels).forEach(country => {
-                let group = `<div class="ch-country-group"><h3 style="color:var(--bbc-red);">${country}</h3><div class="ch-grid">`;
-                allChannels[country].forEach(ch => {
-                    group += `<div class="ch-card" onclick="alert('Connecting to ${ch} Live...')">${ch} LIVE</div>`;
-                });
-                group += `</div></div>`;
-                container.innerHTML += group;
-            });
-        }
-
-        function switchNav(type, btn, cat) {
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
-            document.getElementById('news-container').classList.toggle('hidden', type !== 'news');
-            document.getElementById('channels-container').classList.toggle('hidden', type !== 'channels');
-            document.getElementById('admin-container').classList.toggle('hidden', type !== 'admin');
-            if(cat) {
-                document.querySelectorAll('.category-section').forEach(s => {
-                    s.classList.toggle('hidden', s.id !== cat + '-grid');
-                });
-            }
-            if(type === 'admin') {
-                db.ref('logs').on('value', s => {
-                    const tbody = document.getElementById('log-tbody'); tbody.innerHTML = "";
-                    s.forEach(child => { const l = child.val(); tbody.innerHTML = `<tr><td style='padding:10px;'>${l.email}</td><td>${l.time}</td></tr>` + tbody.innerHTML; });
-                });
-            }
-        }
-
-        function addManualNews() {
-            const title = document.getElementById('admin-news-title').value;
-            const desc = document.getElementById('admin-news-desc').value;
-            if(!title) return alert("Enter Headline!");
-            db.ref('manual_news').push({ title, desc, time: new Date().toLocaleString() });
-            alert("Published!");
-            document.getElementById('admin-news-title').value = "";
-            document.getElementById('admin-news-desc').value = "";
-        }
-
-        function updateTicker() {
-            const text = document.getElementById('admin-ticker-input').value;
-            db.ref('settings/ticker').set(text);
-            alert("Updated!");
-        }
-
-        function listenForTicker() {
-            db.ref('settings/ticker').on('value', s => { if(s.val()) document.getElementById('main-ticker').innerText = "🚀 " + s.val() + " — "; });
-        }
-
-        function listenForManualNews() {
-            db.ref('manual_news').on('value', s => {
-                const display = document.getElementById('manual-news-display');
-                display.innerHTML = "";
-                s.forEach(child => {
-                    const n = child.val();
-                    display.innerHTML = `<div class="bbc-card animate-up" style="border-left:5px solid var(--bbc-red); margin-bottom:20px;">
-                        <span class="category-tag">BREAKING</span><h3>${n.title}</h3><p>${n.desc}</p>
-                    </div>` + display.innerHTML;
-                });
-            });
-        }
-
-        function toggleTooltip() { document.getElementById('user-tooltip').classList.toggle('hidden'); }
-        function showAbout() { document.getElementById('about-modal').classList.remove('hidden'); }
-        setInterval(() => { document.getElementById('live-clock').innerText = new Date().toLocaleTimeString(); }, 1000);
-    </script>
+    <script src="auth.js"></script>
 </body>
 </html>
     
