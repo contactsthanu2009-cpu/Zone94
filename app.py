@@ -11,7 +11,6 @@ user_image_base64 = get_image_base64("image_3.png")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=GEMINI_API_KEY)
 
-# Categories
 feeds = {
     "WORLD NEWS": "https://news.google.com/rss/search?q=world+news&hl=en-US&gl=US&ceid=US:en",
     "SPORTS NEWS": "https://news.google.com/rss/search?q=sports+news&hl=en-US&gl=US&ceid=US:en",
@@ -19,7 +18,7 @@ feeds = {
 }
 
 def create_unified_portal():
-    print("🚀 ZONE 94: Generating Unified v14.0 Master Portal...")
+    print("🚀 ZONE 94: Generating v15.0 - The Final Fix...")
     
     sections_html = ""
     for cat_name, url in feeds.items():
@@ -33,7 +32,7 @@ def create_unified_portal():
             sections_html += f"""
             <div class="bbc-card" onclick="window.open('{entry.link}', '_blank')">
                 <span class="category-tag">{cat_name.split(' ')[0]}</span>
-                <h3>{entry.title}</h3>
+                <h3 class="news-title">{entry.title}</h3>
                 <p>Global Intelligence Report.</p>
             </div>"""
         sections_html += '</div></div>'
@@ -57,20 +56,16 @@ def create_unified_portal():
         .login-overlay {{ position: fixed; inset: 0; background: #000; display: flex; justify-content: center; align-items: center; z-index: 3000; }}
         .login-card {{ background: #0a0a0a; padding: 40px; border: 1px solid #222; border-radius: 20px; text-align: center; width: 380px; box-shadow: 0 0 30px rgba(187,25,25,0.2); }}
         input {{ width: 100%; padding: 14px; margin: 10px 0; background: #151515; border: 1px solid #333; color: #fff; border-radius: 8px; box-sizing: border-box; }}
-        .main-btn {{ width: 100%; background: var(--bbc-red); color: #fff; border: none; padding: 16px; cursor: pointer; font-weight: 900; font-family: 'Bebas Neue'; font-size: 1.5rem; border-radius: 8px; margin-top: 10px; transition: 0.3s; }}
-        .main-btn:hover {{ background: #ff0000; transform: scale(1.02); }}
+        .main-btn {{ width: 100%; background: var(--bbc-red); color: #fff; border: none; padding: 16px; cursor: pointer; font-weight: 900; font-family: 'Bebas Neue'; font-size: 1.5rem; border-radius: 8px; margin-top: 10px; }}
         .main-logo-bbc span {{ background: white; color: black; padding: 5px 15px; font-size: 2.2rem; font-family: 'Bebas Neue'; }}
         .main-logo-bbc .num {{ background: var(--bbc-red); color: white; }}
         .avatar-circle {{ width: 50px; height: 50px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; border: 4px solid var(--bbc-red); cursor: pointer; color: #000; }}
         .main-nav {{ background: #0a0a0a; display: flex; justify-content: center; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 1000; }}
-        .nav-btn {{ background: none; border: none; color: #888; padding: 18px 25px; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: 0.3s; }}
-        .nav-btn:hover, .nav-btn.active {{ color: #fff; border-bottom: 4px solid var(--bbc-red); background: #111; }}
+        .nav-btn {{ background: none; border: none; color: #888; padding: 18px 25px; cursor: pointer; font-weight: bold; text-transform: uppercase; }}
+        .nav-btn.active {{ color: #fff; border-bottom: 4px solid var(--bbc-red); }}
         .news-grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; padding: 30px; }}
-        .bbc-card {{ background: #111; padding: 25px; border-radius: 12px; border: 1px solid #222; cursor: pointer; transition: 0.3s; }}
-        .bbc-card:hover {{ border-color: var(--bbc-red); transform: translateY(-5px); }}
+        .bbc-card {{ background: #111; padding: 25px; border-radius: 12px; border: 1px solid #222; cursor: pointer; }}
         .section-header {{ font-family: 'Bebas Neue'; font-size: 2.5rem; border-left: 8px solid var(--bbc-red); padding-left: 20px; margin-bottom: 35px; text-transform: uppercase; margin-left: 30px; }}
-        .modal-bg {{ position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: flex; justify-content: center; align-items: center; z-index: 4000; }}
-        .modal-photo {{ width: 150px; height: 150px; border-radius: 50%; border: 4px solid var(--bbc-red); margin-bottom: 20px; box-shadow: 0 0 20px var(--bbc-red); }}
     </style>
 </head>
 <body onload="checkSavedLogin()">
@@ -79,9 +74,9 @@ def create_unified_portal():
         <div class="login-card">
             <div id="auth-form">
                 <div class="main-logo-bbc"><span>Z</span><span>O</span><span>N</span><span>E</span><span class="num">94</span></div>
-                <div style="display:flex; margin:20px 0; border-bottom:1px solid #222;">
-                    <button onclick="toggleMode('login')" id="btn-l" style="flex:1; background:none; color:#fff; border:none; padding:10px; cursor:pointer; font-weight:bold;">LOGIN</button>
-                    <button onclick="toggleMode('signup')" id="btn-s" style="flex:1; background:none; color:#555; border:none; padding:10px; cursor:pointer; font-weight:bold;">SIGNUP</button>
+                <div style="display:flex; margin:20px 0;">
+                    <button onclick="toggleMode('login')" id="btn-l" style="flex:1; background:none; color:#fff; border:none; cursor:pointer;">LOGIN</button>
+                    <button onclick="toggleMode('signup')" id="btn-s" style="flex:1; background:none; color:#555; border:none; cursor:pointer;">SIGNUP</button>
                 </div>
                 <input type="text" id="u-name" placeholder="Full Name" class="hidden">
                 <input type="email" id="u-email" placeholder="Email Address">
@@ -90,22 +85,18 @@ def create_unified_portal():
             </div>
             
             <div id="verify-form" class="hidden">
-                <h3 style="color:var(--bbc-red); font-family:'Bebas Neue'; font-size:2rem;">VERIFY EMAIL</h3>
-                <p style="font-size:12px; color:#666;">Check your email for the 6-digit code.</p>
+                <h3 style="color:var(--bbc-red); font-family:'Bebas Neue';">VERIFY EMAIL</h3>
+                <p style="font-size:12px; color:#666;">Enter the code sent to your email.</p>
                 <input type="text" id="v-code" placeholder="Enter Code">
-                <button class="main-btn" onclick="confirmVerify()">VERIFY ACCOUNT</button>
+                <button class="main-btn" onclick="confirmVerify()">VERIFY</button>
             </div>
         </div>
     </div>
 
     <div id="main-site" class="hidden">
-        <div class="ticker-wrap">
-            <div class="ticker" id="main-ticker">🚀 ZONE 94 — WORLD'S NUMBER 1 AI PORTAL — </div>
-            <div id="live-clock" style="color:#666; font-weight:bold">00:00:00</div>
-        </div>
         <header style="display:flex; justify-content:space-between; padding:20px 40px; align-items:center;">
             <div style="width:100px"></div>
-            <div class="main-logo-bbc" onclick="window.location.reload()"><span>Z</span><span>O</span><span>N</span><span>E</span><span class="num">94</span></div>
+            <div class="main-logo-bbc"><span>Z</span><span>O</span><span>N</span><span>E</span><span class="num">94</span></div>
             <div id="user-avatar" class="avatar-circle" onclick="logout()">U</div>
         </header>
         <nav class="main-nav">
@@ -114,34 +105,26 @@ def create_unified_portal():
             <button class="nav-btn" onclick="switchNav('news', this, 'tech')">Tech</button>
             <button class="nav-btn" onclick="switchNav('channels', this)">Channels</button>
             <button class="nav-btn hidden" id="nav-admin" onclick="switchNav('admin', this)" style="color:var(--bbc-red)">ADMIN</button>
-            <button class="nav-btn" onclick="showAbout()">About Us</button>
         </nav>
         <main class="content">
             <div id="news-container">{sections_html}</div>
             <div id="channels-container" class="hidden animate-up">
-                <h2 class="section-header">Live Global Broadcasts</h2>
+                <h2 class="section-header">Live Broadcasts</h2>
                 <div id="all-channels-list" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:15px; padding:30px;"></div>
             </div>
             <div id="admin-container" class="hidden animate-up">
                 <div style="background:#111; padding:30px; border-radius:15px; border:1px solid var(--bbc-red);">
-                    <h2 class="section-header">Admin Control Panel</h2>
-                    <h3 style="color:#fff;">Welcome Admin P.D.T Sathsara</h3>
+                    <h2>Admin Control Panel</h2>
+                    <p>Welcome, P.D.T Sathsara!</p>
                 </div>
             </div>
         </main>
     </div>
 
-    <div id="about-modal" class="modal-bg hidden" onclick="this.classList.add('hidden')">
-        <div style="background:#0a0a0a; padding:40px; text-align:center; border-radius:25px; border:1px solid #333; max-width:450px;" onclick="event.stopPropagation()">
-            <img src="{user_image_base64}" class="modal-photo">
-            <h2>P.D.T SATHSARA</h2>
-            <p>Founder & Developer | Age: 17</p>
-            <button class="main-btn" style="width:auto; padding:10px 40px;" onclick="document.getElementById('about-modal').classList.add('hidden')">CLOSE</button>
-        </div>
-    </div>
-
     <script>
-        // --- LOGIC ---
+        // --- ALL LOGIC IN ONE PLACE ---
+        console.log("ZONE 94 System Loading...");
+        
         const firebaseConfig = {{
             apiKey: "AIzaSyDsrbp-BPJRqJi8UPRx99KRNIALsQvKpxg",
             authDomain: "zone94-2553a.firebaseapp.com",
@@ -177,7 +160,7 @@ def create_unified_portal():
             const email = document.getElementById('u-email').value;
             const pass = document.getElementById('u-pass').value;
             
-            // ADMIN BYPASS
+            // ADMIN LOGIN
             if(email === "contact.sthanu2009@gmail.com" && pass === "200928001301") {{
                 const admin = {{name: "Admin", email, isAdmin: true}};
                 localStorage.setItem('zone94_session', JSON.stringify(admin));
@@ -190,17 +173,22 @@ def create_unified_portal():
                 if(!name || !email || !pass) return alert("Please fill all fields!");
                 generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
                 tempUser = {{name, email, pass}};
-                emailjs.send("service_6j9200q", "template_352c0rr", {{ to_email: email, code: generatedCode }})
-                .then(() => {{
+                console.log("Sending code: " + generatedCode);
+                
+                emailjs.send("service_6j9200q", "template_352c0rr", {{ 
+                    to_email: email, 
+                    code: generatedCode 
+                }}).then(() => {{
+                    alert("Verification code sent to your email!");
                     document.getElementById('auth-form').classList.add('hidden');
                     document.getElementById('verify-form').classList.remove('hidden');
-                }}, (err) => alert("Verification Email Failed! Check EmailJS. Error: " + err.text));
+                }}, (err) => alert("Email Error: " + err.text));
             }} else {{
                 db.ref('users/' + btoa(email)).once('value', s => {{
                     const u = s.val(); if(u && u.pass === pass) {{
                         localStorage.setItem('zone94_session', JSON.stringify(u));
                         loginSuccess(u);
-                    }} else alert("Invalid Login Credentials!");
+                    }} else alert("Login Failed! Please sign up first.");
                 }});
             }}
         }}
@@ -211,7 +199,7 @@ def create_unified_portal():
                     localStorage.setItem('zone94_session', JSON.stringify(tempUser));
                     loginSuccess(tempUser);
                 }});
-            }} else alert("Incorrect Verification Code!");
+            }} else alert("Wrong verification code!");
         }}
 
         function loginSuccess(user) {{
@@ -219,14 +207,14 @@ def create_unified_portal():
             document.getElementById('main-site').classList.remove('hidden');
             document.getElementById('user-avatar').innerText = user.name.charAt(0).toUpperCase();
             if(user.isAdmin) document.getElementById('nav-admin').classList.remove('hidden');
-            loadAllChannels(); listenForTicker();
+            loadAllChannels();
         }}
 
         function loadAllChannels() {{
             const container = document.getElementById('all-channels-list'); container.innerHTML = "";
             Object.keys(allChannels).forEach(country => {{
                 let group = `<div><h3 style="color:var(--bbc-red);">${{country}}</h3><div style="display:flex; flex-wrap:wrap; gap:10px;">`;
-                allChannels[country].forEach(ch => group += `<div style="background:#222; padding:15px; border-radius:10px; cursor:pointer;" onclick="alert('Live Stream Connection Initiated...')">${{ch}}</div>`);
+                allChannels[country].forEach(ch => group += `<div style="background:#222; padding:15px; border-radius:10px; cursor:pointer;" onclick="alert('Loading...')">${{ch}}</div>`);
                 container.innerHTML += group + "</div></div>";
             }});
         }}
@@ -240,15 +228,12 @@ def create_unified_portal():
         }}
 
         function logout() {{ localStorage.removeItem('zone94_session'); window.location.reload(); }}
-        function showAbout() {{ document.getElementById('about-modal').classList.remove('hidden'); }}
-        function listenForTicker() {{ db.ref('settings/ticker').on('value', s => {{ if(s.val()) document.getElementById('main-ticker').innerText = "🚀 " + s.val() + " — "; }}); }}
         setInterval(() => {{ document.getElementById('live-clock').innerText = new Date().toLocaleTimeString(); }}, 1000);
     </script>
 </body>
 </html>
     """
     with open("index.html", "w", encoding="utf-8") as f: f.write(final_html)
-    print("✅ ZONE 94 PRO v14.0 Unified File Created Successfully!")
 
 if __name__ == "__main__":
     create_unified_portal()
